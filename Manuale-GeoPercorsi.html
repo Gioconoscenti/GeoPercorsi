@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manuale GeoPercorsi</title>
+<style>
+  :root {
+    --sfondo: #f8fafc; --carta: #ffffff; --testo: #1e293b; --tenue: #64748b; --bordo: #e2e8f0;
+    --accento: #4f46e5; --c1: #059669; --c2: #0284c7; --c3: #ea580c;
+    --nota: #eef2ff; --nota-bordo: #c7d2fe; --attenz: #fff7ed; --attenz-bordo: #fed7aa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --sfondo: #0f172a; --carta: #1e293b; --testo: #e2e8f0; --tenue: #94a3b8; --bordo: #334155;
+      --accento: #a5b4fc; --nota: #1e1b4b; --nota-bordo: #3730a3; --attenz: #431407; --attenz-bordo: #9a3412;
+    }
+  }
+  :root[data-theme="dark"] {
+    --sfondo: #0f172a; --carta: #1e293b; --testo: #e2e8f0; --tenue: #94a3b8; --bordo: #334155;
+    --accento: #a5b4fc; --nota: #1e1b4b; --nota-bordo: #3730a3; --attenz: #431407; --attenz-bordo: #9a3412;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--sfondo); color: var(--testo); font: 17px/1.6 system-ui, "Segoe UI", sans-serif; }
+  header { background: linear-gradient(90deg, #059669, #0284c7, #ea580c); color: #fff; padding: 32px 16px; }
+  header div, main { max-width: 860px; margin: 0 auto; }
+  header h1 { margin: 0; font-size: 2.2rem; }
+  header p { margin: 4px 0 0; opacity: .9; }
+  main { padding: 16px; }
+  nav.indice { background: var(--carta); border: 1px solid var(--bordo); border-radius: 14px; padding: 12px 20px; margin: 16px 0 24px; }
+  nav.indice ol { margin: 6px 0; padding-left: 22px; columns: 2; column-gap: 32px; }
+  @media (max-width: 640px) { nav.indice ol { columns: 1; } }
+  a { color: var(--accento); }
+  section { background: var(--carta); border: 1px solid var(--bordo); border-radius: 14px; padding: 4px 22px 14px; margin-bottom: 20px; }
+  h2 { font-size: 1.45rem; margin: 18px 0 8px; }
+  h3 { font-size: 1.1rem; margin: 18px 0 4px; }
+  .tasto { display: inline-block; border: 1px solid var(--bordo); border-bottom-width: 3px; border-radius: 7px; padding: 0 7px; font-size: .9em; background: var(--sfondo); white-space: nowrap; }
+  .nota, .attenz { border-radius: 10px; padding: 10px 14px; margin: 12px 0; }
+  .nota { background: var(--nota); border: 1px solid var(--nota-bordo); }
+  .attenz { background: var(--attenz); border: 1px solid var(--attenz-bordo); }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: .95em; }
+  th, td { border-bottom: 1px solid var(--bordo); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--tenue); font-weight: 600; }
+  .classi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+  @media (max-width: 640px) { .classi { grid-template-columns: 1fr; } }
+  .classi div { border-radius: 10px; padding: 10px 12px; color: #fff; }
+  .classi b { display: block; font-size: 1.1em; }
+  li { margin: 3px 0; }
+  footer { text-align: center; color: var(--tenue); font-size: .85em; padding: 8px 16px 32px; }
+  @media print {
+    body { background: #fff; color: #000; font-size: 11pt; }
+    header { padding: 12px 0; }
+    section, nav.indice { border: none; padding: 0; break-inside: auto; }
+    h2 { break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+<header><div>
+  <h1>🧭 GeoPercorsi — Manuale</h1>
+  <p>Guida per i docenti: preparare lezioni di geografia interattive, presentarle alla LIM e farle svolgere agli alunni.</p>
+</div></header>
+
+<main>
+<nav class="indice">
+  <b>Indice</b>
+  <ol>
+    <li><a href="#avvio">Avviare l’app</a></li>
+    <li><a href="#home">La pagina iniziale</a></li>
+    <li><a href="#atlante">L’Atlante</a></li>
+    <li><a href="#strumenti">Strumenti del geografo</a></li>
+    <li><a href="#editor">Creare un percorso</a></li>
+    <li><a href="#elementi">Testi, immagini, video, PDF</a></li>
+    <li><a href="#mappe">Le mappe nelle tappe</a></li>
+    <li><a href="#attivita">Le attività</a></li>
+    <li><a href="#genera">Genera dalla mappa</a></li>
+    <li><a href="#presenta">Presentare alla LIM</a></li>
+    <li><a href="#alunni">Gli alunni</a></li>
+    <li><a href="#condividi">Condividere e salvare</a></li>
+    <li><a href="#esempi">I percorsi d’esempio</a></li>
+    <li><a href="#problemi">Domande frequenti</a></li>
+  </ol>
+</nav>
+
+<section id="avvio">
+  <h2>1. Avviare l’app</h2>
+  <p>Nella cartella di GeoPercorsi fai <b>doppio clic su <code>Avvia-GeoPercorsi.bat</code></b>.</p>
+  <ul>
+    <li>La <b>prima volta</b> il programma installa ciò che serve (Node.js e le librerie): occorre Internet e qualche minuto. Se Windows chiede il permesso di installare, rispondi <b>Sì</b>.</li>
+    <li>Dalla volta successiva l’app si apre nel browser in pochi secondi.</li>
+    <li>Resta aperta una <b>finestra nera</b>: non chiuderla mentre lavori. Per chiudere l’app chiudi quella finestra.</li>
+  </ul>
+  <div class="nota">💡 Se l’app è stata pubblicata online da te o dalla scuola, basta aprire il suo indirizzo nel browser: non serve installare nulla.</div>
+</section>
+
+<section id="home">
+  <h2>2. La pagina iniziale</h2>
+  <p>La pagina iniziale è divisa in tre colonne, una per classe:</p>
+  <div class="classi">
+    <div style="background:var(--c1)"><b>1ª media</b>Italia</div>
+    <div style="background:var(--c2)"><b>2ª media</b>Europa</div>
+    <div style="background:var(--c3)"><b>3ª media</b>Continenti e mondo</div>
+  </div>
+  <p>In ogni colonna trovi:</p>
+  <ul>
+    <li><b>＋ Nuovo percorso</b>: crea un percorso vuoto per quella classe e apre l’editor.</li>
+    <li><b>🗺️ Atlante</b>: apre la carta della classe da esplorare liberamente.</li>
+    <li>L’elenco dei percorsi, ognuno con i pulsanti <b>✏️ Modifica</b>, <b>📺 Presenta</b> (LIM) e <b>🎒 Alunno</b> (prova come la vedrà un alunno).</li>
+    <li>Il pulsante <b>⋯</b> di ogni percorso: scarica il file per gli alunni, esporta il pacchetto, <b>Duplica</b>, <b>Elimina</b>.</li>
+  </ul>
+  <p>In alto a destra, <b>⬆ Importa percorso</b> carica un pacchetto <code>.geopercorso</code> ricevuto da un collega o salvato come copia.</p>
+</section>
+
+<section id="atlante">
+  <h2>3. L’Atlante</h2>
+  <p>È la carta da proiettare per spiegare. In alto scegli <b>Italia</b>, <b>Europa</b> o <b>Mondo</b>; sulla carta scegli <b>🗺️ Politica</b> o <b>⛰️ Fisica</b>.</p>
+  <ul>
+    <li><b>Livelli</b>: accendi e spegni ciò che vuoi vedere (regioni, province, Stati, capitali, montagne, vette, vulcani, fiumi, laghi, mari, isole, climi…). Meno livelli = carta più leggibile alla LIM.</li>
+    <li><b>Aa Nomi</b>: mostra o nasconde le scritte sulla carta (nascondile per interrogare la classe).</li>
+    <li><b>Clic su un elemento</b>: si apre la scheda con i dati in italiano (capoluogo, abitanti, altezza, lunghezza, Stati attraversati, curiosità…).</li>
+    <li><b>Zoom</b>: rotellina del mouse, pizzico con due dita sulla LIM o pulsanti <b>＋ －</b>; <b>⤢</b> torna alla vista intera.</li>
+    <li><b>🔍 Zoom su</b>: inquadra una sola regione, Stato, regione d’Europa, continente o area del mondo. Compaiono i dettagli interni (province e capoluoghi; Länder, cantoni, Stati federati…; città principali, fiumi e vette della zona) e il pulsante <b>ℹ️ Scheda</b> con la scheda completa.</li>
+  </ul>
+  <table>
+    <tr><th>Carta</th><th>Cosa contiene</th></tr>
+    <tr><td>Italia</td><td>20 regioni, province, capoluoghi; monti, vette, vulcani, pianure, fiumi, laghi, mari, isole, coste</td></tr>
+    <tr><td>Europa</td><td>Stati, capitali, le 8 regioni d’Europa del libro di 2ª (iberica, atlantica, britannica, germanica, nordica, balcanica, centro-orientale, Russia); rilievi, fiumi, laghi, mari, penisole, stretti</td></tr>
+    <tr><td>Mondo</td><td>Continenti, Stati, capitali, aree geografiche del libro di 3ª, Stati federati di 10 grandi Paesi; rilievi, deserti, fiumi, laghi, oceani, fasce climatiche, fusi orari</td></tr>
+  </table>
+</section>
+
+<section id="strumenti">
+  <h2>4. Strumenti del geografo</h2>
+  <p>Accendendo il livello <b>🌐 Reticolato e scala</b> (su tutte le carte) compaiono:</p>
+  <ul>
+    <li>meridiani e paralleli con i gradi scritti sui bordi;</li>
+    <li>le <b>coordinate</b> del punto sotto il cursore (latitudine e longitudine);</li>
+    <li>la <b>rosa dei venti</b> e la <b>scala grafica</b> in km.</li>
+  </ul>
+  <p>Sulla carta del mondo ci sono anche i livelli <b>🕐 Fusi orari</b> (fusi teorici) e <b>〰️ Paralleli e meridiani</b> (Equatore, tropici, circoli polari, <b>meridiano di Greenwich</b> e <b>linea del cambiamento di data</b>). Cliccando un fuso si legge che ore sono lì quando a Greenwich è mezzogiorno.</p>
+  <div class="attenz">⚠️ I fusi sono quelli teorici dei libri (spicchi di 15°): l’ora reale di alcuni Stati può essere diversa.</div>
+</section>
+
+<section id="editor">
+  <h2>5. Creare un percorso</h2>
+  <p>Un percorso è una sequenza di <b>tappe</b>, come le diapositive di una presentazione (formato 16:9).</p>
+  <h3>Le parti dell’editor</h3>
+  <ul>
+    <li><b>In alto</b>: titolo del percorso (clicca per cambiarlo), classe, <b>↶ ↷</b> annulla/ripeti, <b>⬇ Esporta</b>, <b>🎒 Prova come alunno</b>, <b>📺 Presenta</b>. Il salvataggio è automatico (“✓ Salvato”).</li>
+    <li><b>Barra degli strumenti</b>: per inserire testi, media, mappe e attività.</li>
+    <li><b>A sinistra</b>: le tappe. <b>＋ Nuova tappa</b>, trascinale per riordinarle, <b>📄 Duplica</b>, <b>🗑️ Elimina</b>.</li>
+    <li><b>Al centro</b>: la tappa. Trascina gli elementi per spostarli, usa le maniglie per ridimensionarli.</li>
+    <li><b>A destra</b>: le proprietà dell’elemento selezionato. Senza nulla selezionato, le proprietà della tappa (titolo, colore o immagine di sfondo) e del percorso (descrizione mostrata agli alunni all’inizio).</li>
+  </ul>
+  <h3>Scorciatoie</h3>
+  <table>
+    <tr><td><span class="tasto">Ctrl</span> + <span class="tasto">Z</span> / <span class="tasto">Ctrl</span> + <span class="tasto">Y</span></td><td>Annulla / ripeti</td></tr>
+    <tr><td><span class="tasto">Ctrl</span> + <span class="tasto">D</span></td><td>Duplica l’elemento selezionato</td></tr>
+    <tr><td><span class="tasto">Canc</span></td><td>Elimina l’elemento selezionato</td></tr>
+  </table>
+  <p>Nel pannello a destra, <b>⬆ ⬇</b> portano un elemento davanti o dietro agli altri; <b>⛶ Tutto schermo</b> gli fa occupare tutta la tappa; <b>↔ Centra</b> lo centra.</p>
+</section>
+
+<section id="elementi">
+  <h2>6. Testi, immagini, video, PDF</h2>
+  <table>
+    <tr><th>Pulsante</th><th>Uso</th></tr>
+    <tr><td>🔤 Testo</td><td>Titoli e spiegazioni: dimensione, colore e riquadro dal pannello a destra.</td></tr>
+    <tr><td>🖼️ Immagine</td><td>Foto, schemi, pagine del libro scansionate.</td></tr>
+    <tr><td>🎬 Video</td><td>Incolla un link <b>YouTube</b> oppure carica un file video.</td></tr>
+    <tr><td>🎧 Audio</td><td>Un file audio (letture, musiche, suoni).</td></tr>
+    <tr><td>📄 PDF</td><td>Un PDF sfogliabile pagina per pagina.</td></tr>
+    <tr><td>📎 Carica file</td><td>Qualsiasi dei precedenti. Puoi anche <b>trascinare i file direttamente sulla tappa</b>.</td></tr>
+    <tr><td>ℹ️ Punto info</td><td>Un’icona che, cliccata, apre un riquadro con testo e immagine. Mettila sopra un’immagine o una carta per creare “immagini interattive” come in Genially.</td></tr>
+    <tr><td>🔘 Pulsante</td><td>Porta a un’altra tappa (o a un sito). Serve per percorsi a bivi: “Vuoi esplorare le Alpi o gli Appennini?”.</td></tr>
+  </table>
+  <div class="nota">💡 I file caricati restano dentro il percorso: non serve che restino nella cartella originale.</div>
+</section>
+
+<section id="mappe">
+  <h2>7. Le mappe nelle tappe</h2>
+  <p>Con <b>🗺️ Mappa</b> inserisci una carta interattiva. Nel pannello a destra scegli:</p>
+  <ul>
+    <li><b>Area</b> (Italia, Europa, Mondo) e <b>Tipo di carta</b> (Politica o Fisica);</li>
+    <li><b>Zoom su</b> una regione o uno Stato, se vuoi;</li>
+    <li><b>Cosa mostrare</b> (i livelli) e <b>Mostra i nomi sulla carta</b>.</li>
+  </ul>
+  <p>Con <b>🎨 Colora e aggiungi contenuti</b> si apre la carta grande:</p>
+  <ul>
+    <li><b>🎨 Colora</b>: scegli un colore e clicca aree, fiumi, città… Clicca di nuovo per togliere il colore; <b>🧽 Gomma</b> e <b>Togli tutti i colori</b> per ripulire.</li>
+    <li><b>📝 Contenuti</b>: clicca un elemento e aggiungi un testo o un’immagine (appunti della lezione, curiosità, domande). Gli alunni li vedranno cliccando quell’elemento, insieme ai dati della scheda.</li>
+  </ul>
+</section>
+
+<section id="attivita">
+  <h2>8. Le attività</h2>
+  <p>Dal menu <b>🎯 Attività</b> scegli il tipo; poi scrivi domande e risposte nel pannello a destra.</p>
+  <table>
+    <tr><th>Attività</th><th>Come funziona</th></tr>
+    <tr><td>❓ Quiz a scelta multipla</td><td>Domande con più risposte, anche con immagine.</td></tr>
+    <tr><td>✅ Vero o falso</td><td>Affermazioni da valutare.</td></tr>
+    <tr><td>🔗 Abbinamenti</td><td>Collega le coppie (Stato–capitale, fiume–regione…).</td></tr>
+    <tr><td>✍️ Completa il testo</td><td>Scrivi il testo mettendo le parole da indovinare tra <b>[parentesi quadre]</b>: “Il fiume più lungo d’Italia è il [Po]”.</td></tr>
+    <tr><td>🔢 Metti in ordine</td><td>Elementi da riordinare (dal più alto al più basso, da nord a sud…).</td></tr>
+    <tr><td>🃏 Flashcard</td><td>Carte da girare per ripassare (non danno punti).</td></tr>
+    <tr><td>📍 Trova sulla mappa</td><td>L’alunno clicca il luogo richiesto. Scegli i luoghi cliccandoli sulla carta, oppure <b>🎲 +5 a caso</b> o <b>Tutti</b>.</td></tr>
+    <tr><td>🏷️ Etichette sulla mappa</td><td>L’alunno trascina i nomi sui luoghi giusti.</td></tr>
+    <tr><td>🌐 Clicca le coordinate</td><td>Compaiono latitudine e longitudine: l’alunno clicca il punto e scopre a quanti km è arrivato. Imposti la distanza accettata; <b>🎲 Aggiungi 5 città</b> prepara i punti.</td></tr>
+  </table>
+  <p>Nelle attività sulla carta i nomi sono nascosti, così non si può “copiare”.</p>
+</section>
+
+<section id="genera">
+  <h2>9. ✨ Genera dalla mappa</h2>
+  <p>Crea un’attività completa in un clic usando i dati delle carte. Si fa in quattro passi:</p>
+  <ol>
+    <li><b>Area</b> e, se vuoi, <b>Solo in</b> una regione o uno Stato (es. “le province della Lombardia”, “i Länder della Germania”);</li>
+    <li><b>Carta</b>: politica o fisica;</li>
+    <li><b>Su cosa</b>: regioni, Stati, fiumi, vette, laghi…;</li>
+    <li><b>Tipo di gioco</b> e <b>quante</b> domande, poi <b>Crea</b>.</li>
+  </ol>
+  <p>Giochi disponibili: trova sulla mappa, etichette, quiz capitali/capoluoghi, abbina le capitali, quiz bandiere, quiz dei record (il più alto, lungo, grande), metti in ordine, che cos’è?, dove si trova?, chi confina con chi?, quiz sulle coordinate, clicca le coordinate, punti cardinali, distanze, fusi orari, flashcard di ripasso.</p>
+  <div class="nota">💡 Ogni volta che premi “Crea” le domande cambiano. Le domande create si possono sempre correggere dal pannello a destra.</div>
+</section>
+
+<section id="presenta">
+  <h2>10. Presentare alla LIM</h2>
+  <p>Premi <b>📺 Presenta</b>. Il percorso occupa tutto lo schermo e si adatta alla LIM.</p>
+  <ul>
+    <li>Cambia tappa con <b>◀ ▶</b>, con le frecce <span class="tasto">←</span> <span class="tasto">→</span>, con <span class="tasto">PagSu</span> <span class="tasto">PagGiù</span> o con il telecomando da presentazione.</li>
+    <li><b>⛶</b> attiva lo schermo intero.</li>
+    <li><b>Timer</b>: un conto alla rovescia per le attività in classe; lampeggia quando il tempo è scaduto.</li>
+    <li>Le attività si possono svolgere insieme, chiamando gli alunni alla lavagna.</li>
+  </ul>
+</section>
+
+<section id="alunni">
+  <h2>11. Gli alunni</h2>
+  <p>Nella modalità alunno (<b>🎒 Alunno</b>, oppure il file per gli alunni) lo studente:</p>
+  <ol>
+    <li>scrive <b>nome e cognome</b> e preme <b>Inizia il percorso</b>;</li>
+    <li>svolge tappe e attività, con correzione immediata e punteggio sempre visibile;</li>
+    <li>alla fine (<b>Fine 🏁</b>) vede il <b>riepilogo</b> con i punti di ogni attività.</li>
+  </ol>
+  <p>Dal riepilogo, <b>🖨️ Stampa / salva PDF</b> produce un foglio con nome e risultati: l’alunno può consegnarlo su Classroom o al registro. Sul telefono le tappe si dispongono in verticale.</p>
+</section>
+
+<section id="condividi">
+  <h2>12. Condividere e salvare</h2>
+  <p>Dall’editor (<b>⬇ Esporta</b>) o dal pulsante <b>⋯</b> nella pagina iniziale:</p>
+  <table>
+    <tr><th>Cosa</th><th>Per chi</th><th>Come si usa</th></tr>
+    <tr><td><b>🎒 File per gli alunni</b> (.html)</td><td>Alunni</td><td>Un unico file che contiene tutto. Caricalo su Classroom, registro elettronico o mail: gli alunni lo scaricano e lo aprono con un doppio clic, anche offline e da telefono. Non si può modificare.</td></tr>
+    <tr><td><b>💾 Pacchetto</b> (.geopercorso)</td><td>Colleghi, copia di sicurezza</td><td>Si riapre con <b>⬆ Importa percorso</b> e resta modificabile.</td></tr>
+  </table>
+  <div class="attenz">
+    ⚠️ <b>I percorsi sono salvati nel browser</b> del computer su cui li crei. Se cambi computer o browser, o se cancelli i dati di navigazione, non li ritrovi: <b>esporta regolarmente i pacchetti</b> come copia di sicurezza.
+  </div>
+  <ul>
+    <li>Da Google Drive il file per gli alunni va <b>scaricato</b>: l’anteprima di Drive non lo fa funzionare.</li>
+    <li>Aggiungendo <code>?lim</code> all’indirizzo del file per gli alunni, si apre in modalità presentazione.</li>
+    <li>Per dare l’app a un collega basta copiargli la cartella di GeoPercorsi: con il doppio clic su <code>Avvia-GeoPercorsi.bat</code> si installa da sola.</li>
+  </ul>
+</section>
+
+<section id="esempi">
+  <h2>13. I percorsi d’esempio</h2>
+  <p>Al primo avvio GeoPercorsi crea 22 percorsi pronti, ordinati come i capitoli dei libri di testo:</p>
+  <ul>
+    <li><b>1ª media</b> (7): gli strumenti del geografo, il pianeta Terra e il clima, i rilievi, le pianure, l’acqua sulla terra, le città, uno sguardo sull’Italia;</li>
+    <li><b>2ª media</b> (9): l’Europa e le otto regioni d’Europa;</li>
+    <li><b>3ª media</b> (6): alla scoperta della Terra, i continenti con le aree geografiche e gli Stati studiati, l’Oceania, i Poli.</li>
+  </ul>
+  <p>Sono normali percorsi: puoi modificarli, duplicarli come base per i tuoi o eliminarli.</p>
+</section>
+
+<section id="problemi">
+  <h2>14. Domande frequenti</h2>
+  <h3>Il doppio clic sul file .bat non apre niente.</h3>
+  <p>Leggi il messaggio nella finestra nera. Se non è riuscito a installare Node.js, si apre la pagina di download: installa la versione <b>LTS</b> e riprova. Se Windows mostra “PC protetto da Windows”, scegli <b>Ulteriori informazioni → Esegui comunque</b>.</p>
+  <h3>Non trovo più i miei percorsi.</h3>
+  <p>Controlla di usare lo stesso computer e lo stesso browser con cui li hai creati. Se hai una copia, usa <b>⬆ Importa percorso</b>.</p>
+  <h3>La carta è troppo affollata alla LIM.</h3>
+  <p>Spegni i livelli che non servono, usa <b>🔍 Zoom su</b> per mostrare una sola zona, oppure nascondi i nomi.</p>
+  <h3>Un video di YouTube non parte nel file per gli alunni.</h3>
+  <p>I video YouTube hanno bisogno di Internet. Per l’uso offline carica il video come file.</p>
+  <h3>Il file per gli alunni è molto grande.</h3>
+  <p>Contiene tutte le immagini, i video e le carte usati. Riduci la dimensione dei video o usa link YouTube.</p>
+  <h3>Un dato sulla carta non coincide con il libro.</h3>
+  <p>Le misure sono arrotondate a uso scolastico e le fonti a volte differiscono. Puoi aggiungere la versione del libro con <b>📝 Contenuti</b> sulla mappa.</p>
+</section>
+</main>
+
+<footer>
+  GeoPercorsi · Dati cartografici: Natural Earth, ISTAT/openpolis, fiumi italiani © OpenStreetMap contributors (ODbL), bandiere flag-icons.
+</footer>
+</body>
+</html>
