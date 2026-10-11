@@ -5,7 +5,8 @@ Webapp per lezioni di geografia interattive nella scuola secondaria di primo gra
 
 ## Avvio
 
-**Il modo più semplice:** doppio clic su `Avvia-GeoPercorsi.bat`. La prima volta installa Node.js se manca (con winget, oppure apre la pagina di download), poi le librerie, e apre l’app nel browser.
+**Online (GitHub Pages):** https://gioconoscenti.github.io/GeoPercorsi/ — nessuna installazione; i percorsi restano nel browser in uso.
+**In locale:** doppio clic su `Avvia-GeoPercorsi.bat`. La prima volta installa Node.js se manca (con winget, oppure apre la pagina di download), poi le librerie, e apre l’app nel browser.
 **Manuale per i docenti:** `Manuale-GeoPercorsi.html` (si apre con un doppio clic e si stampa in PDF), oppure il pulsante **📘 Guida** nell’app. Il testo si modifica in `public/manuale.html`, poi si ricopia nella cartella principale.
 
 Per passare l’app a un collega basta copiargli la cartella del progetto, anche senza `node_modules`.

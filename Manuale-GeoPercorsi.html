@@ -74,6 +74,7 @@
     <li><a href="#mappe">Le mappe nelle tappe</a></li>
     <li><a href="#attivita">Le attività</a></li>
     <li><a href="#genera">Genera dalla mappa</a></li>
+    <li><a href="#claude">Crea con Claude</a></li>
     <li><a href="#presenta">Presentare alla LIM</a></li>
     <li><a href="#alunni">Gli alunni</a></li>
     <li><a href="#condividi">Condividere e salvare</a></li>
@@ -84,13 +85,16 @@
 
 <section id="avvio">
   <h2>1. Avviare l’app</h2>
-  <p>Nella cartella di GeoPercorsi fai <b>doppio clic su <code>Avvia-GeoPercorsi.bat</code></b>.</p>
+  <p>Il modo più semplice è usare l’app online, senza installare nulla: apri nel browser il link di GitHub</p>
+  <p><a href="https://gioconoscenti.github.io/GeoPercorsi/" target="_blank" rel="noopener"><b>https://gioconoscenti.github.io/GeoPercorsi/</b></a></p>
+  <p>L’app si aggiorna da sola a ogni novità pubblicata. Aggiungila ai preferiti del browser.</p>
+  <div class="attenz">⚠️ I percorsi che crei restano <b>nel browser del computer che usi</b>: sullo stesso link, un altro computer o un altro browser parte da zero. Per spostarli usa <b>💾 Backup</b> e <b>⬆ Importa</b> (vedi “Condividere e salvare”).</div>
+  <p><b>In alternativa, senza Internet:</b> nella cartella di GeoPercorsi fai <b>doppio clic su <code>Avvia-GeoPercorsi.bat</code></b>.</p>
   <ul>
     <li>La <b>prima volta</b> il programma installa ciò che serve (Node.js e le librerie): occorre Internet e qualche minuto. Se Windows chiede il permesso di installare, rispondi <b>Sì</b>.</li>
     <li>Dalla volta successiva l’app si apre nel browser in pochi secondi.</li>
     <li>Resta aperta una <b>finestra nera</b>: non chiuderla mentre lavori. Per chiudere l’app chiudi quella finestra.</li>
   </ul>
-  <div class="nota">💡 Se l’app è stata pubblicata online da te o dalla scuola, basta aprire il suo indirizzo nel browser: non serve installare nulla.</div>
 </section>
 
 <section id="home">
@@ -112,6 +116,7 @@
   <p>In alto a destra:</p>
   <ul>
     <li><b>📘 Guida</b> apre questo manuale.</li>
+    <li><b>✨ Crea con Claude</b> fa scrivere un intero percorso a Claude e lo importa qui (vedi “Crea con Claude”).</li>
     <li><b>💾 Backup</b> scarica una copia di <b>tutti</b> i tuoi percorsi in un unico file <code>.zip</code>.</li>
     <li><b>⬆ Importa</b> carica un pacchetto <code>.geopercorso</code> ricevuto da un collega oppure un backup.</li>
   </ul>
@@ -228,8 +233,28 @@
   <div class="nota">💡 Ogni volta che rigeneri le domande cambiano. Le domande create si possono sempre correggere dal pannello a destra.</div>
 </section>
 
+<section id="claude">
+  <h2>10. ✨ Crea con Claude</h2>
+  <p>Per un percorso intero, con testi tuoi su un argomento qualsiasi (anche storia e arte), puoi farlo scrivere a <b>Claude</b> e importarlo qui. Va bene anche la versione <b>gratuita</b> di Claude (claude.ai): l’app non ha bisogno di chiavi né di collegamenti con il tuo account.</p>
+  <ol>
+    <li>Dalla pagina iniziale premi <b>✨ Crea con Claude</b>.</li>
+    <li><b>Descrivi il percorso</b>, scegli la <b>classe</b> e le <b>carte da usare</b> (Italia, Europa, Mondo), poi premi <b>📋 Copia le istruzioni per Claude</b>. Esempio: “Percorso storico e artistico su Parma, Ferrara e Ravenna, con una scheda per città, un quiz e un abbinamento monumento-città”.</li>
+    <li>Apri <b>claude.ai</b>, avvia una <b>nuova chat</b>, <b>incolla</b> (<span class="tasto">Ctrl</span>+<span class="tasto">V</span>) e invia. Aspetta che Claude finisca, poi <b>copia tutta la risposta</b>.</li>
+    <li>Torna in GeoPercorsi, <b>incolla la risposta</b> nel riquadro in basso e premi <b>🔍 Controlla</b>.</li>
+    <li>Se va tutto bene vedi l’elenco delle tappe: premi <b>Crea il percorso e aprilo</b> e lo modifichi come gli altri.</li>
+  </ol>
+  <p>Le istruzioni contengono già i nomi dei luoghi presenti nelle carte, così Claude usa solo quelli. Cosa può contenere il percorso: <b>lezioni</b>, <b>carte</b> con le <b>schede</b> dei luoghi (il testo compare cliccando una città, un monte o un fiume), <b>trova sulla mappa</b>, <b>etichette</b>, <b>quiz</b>, <b>vero o falso</b>, <b>abbinamenti</b>, <b>completa il testo</b>, <b>metti in ordine</b> e <b>flashcard</b>.</p>
+  <h3>Se il controllo segnala dei problemi</h3>
+  <ul>
+    <li><b>Riquadro rosso</b> (errori): il percorso non viene creato. Premi <b>📋 Copia il messaggio di correzione per Claude</b>, incollalo <b>nella stessa chat</b>, poi incolla qui la nuova risposta.</li>
+    <li><b>Riquadro giallo</b> (“Da sapere”): il percorso si può creare. Di solito sono luoghi che non esistono sulla carta e sono stati tolti dai giochi.</li>
+    <li>Se la risposta si interrompe a metà, chiedi a Claude di riscrivere il percorso <b>più corto</b> (meno tappe) oppure di continuare.</li>
+  </ul>
+  <div class="attenz">⚠️ <b>Controlla sempre i contenuti.</b> Claude può sbagliare date, nomi e dettagli storici o artistici: leggi i testi prima di usarli in classe. Le <b>immagini</b> non arrivano con il percorso: aggiungile dopo dall’editor.</div>
+</section>
+
 <section id="presenta">
-  <h2>10. Presentare alla LIM</h2>
+  <h2>11. Presentare alla LIM</h2>
   <p>Premi <b>📺 Presenta</b>. Il percorso occupa tutto lo schermo e si adatta alla LIM.</p>
   <ul>
     <li>Cambia tappa con <b>◀ ▶</b>, con le frecce <span class="tasto">←</span> <span class="tasto">→</span>, con <span class="tasto">PagSu</span> <span class="tasto">PagGiù</span> o con il telecomando da presentazione.</li>
@@ -241,7 +266,7 @@
 </section>
 
 <section id="alunni">
-  <h2>11. Gli alunni</h2>
+  <h2>12. Gli alunni</h2>
   <p>Nella modalità alunno (<b>🎒 Alunno</b>, oppure il file per gli alunni) lo studente:</p>
   <ol>
     <li>scrive <b>nome e cognome</b> e preme <b>Inizia il percorso</b>;</li>
@@ -252,7 +277,7 @@
 </section>
 
 <section id="condividi">
-  <h2>12. Condividere e salvare</h2>
+  <h2>13. Condividere e salvare</h2>
   <p>Dall’editor (<b>📤 Condividi</b>) o dal pulsante <b>⋯</b> nella pagina iniziale:</p>
   <table>
     <tr><th>Cosa</th><th>Per chi</th><th>Come si usa</th></tr>
@@ -265,12 +290,12 @@
   <ul>
     <li>Da Google Drive il file per gli alunni va <b>scaricato</b>: l’anteprima di Drive non lo fa funzionare.</li>
     <li>Aggiungendo <code>?lim</code> all’indirizzo del file per gli alunni, si apre in modalità presentazione.</li>
-    <li>Per dare l’app a un collega basta copiargli la cartella di GeoPercorsi: con il doppio clic su <code>Avvia-GeoPercorsi.bat</code> si installa da sola.</li>
+    <li>Per dare l’app a un collega basta mandargli il link <a href="https://gioconoscenti.github.io/GeoPercorsi/" target="_blank" rel="noopener">https://gioconoscenti.github.io/GeoPercorsi/</a>; i tuoi percorsi glieli passi con un <b>pacchetto .geopercorso</b> (si apre con <b>⬆ Importa</b>). In alternativa gli copi la cartella di GeoPercorsi: con il doppio clic su <code>Avvia-GeoPercorsi.bat</code> si installa da sola.</li>
   </ul>
 </section>
 
 <section id="esempi">
-  <h2>13. I percorsi d’esempio</h2>
+  <h2>14. I percorsi d’esempio</h2>
   <p>Al primo avvio GeoPercorsi crea 44 percorsi pronti. Sono normali percorsi: puoi modificarli, duplicarli come base per i tuoi o eliminarli.</p>
   <h3>I capitoli dei libri (22)</h3>
   <ul>
@@ -295,7 +320,9 @@
 </section>
 
 <section id="problemi">
-  <h2>14. Domande frequenti</h2>
+  <h2>15. Domande frequenti</h2>
+  <h3>Aprendo il link di GitHub non vedo i percorsi che ho creato.</h3>
+  <p>I percorsi sono salvati nel browser del computer su cui li hai creati. Controlla di usare lo stesso computer e lo stesso browser; altrimenti importali con <b>⬆ Importa</b> da un backup o da un pacchetto.</p>
   <h3>Il doppio clic sul file .bat non apre niente.</h3>
   <p>Leggi il messaggio nella finestra nera. Se non è riuscito a installare Node.js, si apre la pagina di download: installa la versione <b>LTS</b> e riprova. Se Windows mostra “PC protetto da Windows”, scegli <b>Ulteriori informazioni → Esegui comunque</b>.</p>
   <h3>Non trovo più i miei percorsi.</h3>
@@ -312,6 +339,8 @@
   <p>Usa il campo <b>🔎 Cerca un percorso</b> in cima alla pagina iniziale: prova con il nome di una regione, di uno Stato o di un argomento (“vulcani”, “climogramma”, “Umbria”). Se non trovi nulla, prova con meno parole.</p>
   <h3>Come faccio il grafico con i miei dati?</h3>
   <p>Inserisci <b>🎯 Attività → Leggi il grafico</b>, scegli la forma e scrivi i dati nel pannello a destra. Se vuoi un climogramma scegli “Climogramma”: le righe sono i mesi (c’è il pulsante <b>📅 Usa i 12 mesi</b>), la prima colonna sono le piogge in mm e la seconda le temperature in °C.</p>
+  <h3>Come faccio un percorso su un argomento che non è nelle carte (storia, arte…)?</h3>
+  <p>Usa <b>✨ Crea con Claude</b> dalla pagina iniziale: Claude scrive i testi e le attività, e l’app collega i luoghi alle carte. Vedi la sezione “Crea con Claude”.</p>
   <h3>Come faccio la carta muta della mia regione?</h3>
   <p>Apri <b>✨ Genera dalla mappa</b>, scegli la carta (politica o fisica), poi “Solo in” la regione o lo Stato e infine il gioco “Carta muta”. Oppure usa i percorsi “Carte mute” già pronti.</p>
 </section>
