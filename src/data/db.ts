@@ -23,3 +23,14 @@ export async function aggiungiAsset(file: File | Blob, nome?: string): Promise<s
   await db.assets.put({ id, nome: nome ?? (file as File).name ?? 'file', mime: file.type || 'application/octet-stream', blob: file })
   return id
 }
+
+/** Cancella i file (immagini, video, PDF…) che nessun percorso usa più */
+export async function pulisciAsset(): Promise<number> {
+  const { assetUsati } = await import('../export/pacchetto')
+  return db.transaction('rw', db.percorsi, db.assets, async () => {
+    const usati = new Set((await db.percorsi.toArray()).flatMap(assetUsati))
+    const orfani = (await db.assets.toCollection().primaryKeys()).filter((id) => !usati.has(id))
+    await db.assets.bulkDelete(orfani)
+    return orfani.length
+  })
+}

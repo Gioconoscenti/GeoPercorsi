@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Attivita } from '../types'
 import { MapView } from '../geo/MapView'
 import { useGeo, type GeoFeature } from '../geo/useGeo'
@@ -31,13 +31,20 @@ function useObiettivi(att: Att<'trova'> | Att<'etichette'>) {
 // ---------------- Trova sulla mappa ----------------
 export function Trova({ att, onRisultato, statico }: PropsAttivita<Att<'trova'>>) {
   const ob = useObiettivi(att)
-  const [ordine, setOrdine] = useState(() => mescola(att.obiettivi))
+  // si giocano solo i luoghi che esistono davvero nella carta (un id sparito bloccherebbe il gioco)
+  const validi = useMemo(() => ob?.lista.map((f) => f.properties.id!) ?? [], [ob])
+  const [mescolati, setOrdine] = useState<string[] | null>(null)
+  const ordine = mescolati ?? validi
   const [i, setI] = useState(0)
   const [esiti, setEsiti] = useState<boolean[]>([])
   const [errori, setErrori] = useState(0)
   const [flash, setFlash] = useState<Record<string, string>>({})
   const [rivela, setRivela] = useState(false)
   const [ris, setRis] = useState<Risultato | null>(null)
+  const timer = useRef<{ flash?: number; rivela?: number }>({})
+  useEffect(() => () => { clearTimeout(timer.current.flash); clearTimeout(timer.current.rivela) }, [])
+  // l'ordine si mescola quando arrivano i dati della carta
+  useEffect(() => { if (validi.length) setOrdine(mescola(validi)) }, [validi])
 
   if (!ob) return <Cornice tipo="trova" titolo={att.titolo}><p className="text-slate-500">Caricamento…</p></Cornice>
   if (!ob.lista.length) return <Cornice tipo="trova" titolo={att.titolo}><p className="text-slate-500">Scegli i luoghi da trovare nel pannello delle proprietà.</p></Cornice>
@@ -66,16 +73,17 @@ export function Trova({ att, onRisultato, statico }: PropsAttivita<Att<'trova'>>
       prossimo(errori === 0)
     } else {
       setFlash({ [id]: ROSSO })
-      setTimeout(() => setFlash({}), 700)
+      clearTimeout(timer.current.flash)
+      timer.current.flash = window.setTimeout(() => setFlash({}), 700)
       if (errori + 1 >= 2) {
         setRivela(true)
-        setTimeout(() => prossimo(false), 1800)
+        timer.current.rivela = window.setTimeout(() => prossimo(false), 1800)
       }
       setErrori(errori + 1)
     }
   }
 
-  const reset = () => { setOrdine(mescola(att.obiettivi)); setI(0); setEsiti([]); setErrori(0); setRis(null); setRivela(false) }
+  const reset = () => { clearTimeout(timer.current.rivela); setOrdine(mescola(validi)); setI(0); setEsiti([]); setErrori(0); setRis(null); setRivela(false) }
   const tipoNome = corrente ? NOMI_LIVELLI[corrente.properties.livello] ?? '' : ''
 
   return (
@@ -103,7 +111,9 @@ export function Trova({ att, onRisultato, statico }: PropsAttivita<Att<'trova'>>
 // ---------------- Etichette sulla mappa ----------------
 export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etichette'>>) {
   const ob = useObiettivi(att)
-  const etichette = useMemo(() => mescola(att.obiettivi), [att.obiettivi])
+  // solo i luoghi che esistono davvero nella carta
+  const validi = useMemo(() => ob?.lista.map((f) => f.properties.id!) ?? [], [ob])
+  const etichette = useMemo(() => mescola(validi), [validi])
   const [posti, setPosti] = useState<Record<string, string>>({}) // area → etichetta
   const [sel, setSel] = useState<string | null>(null)
   const [ris, setRis] = useState<Risultato | null>(null)
@@ -113,7 +123,7 @@ export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etic
 
   const nome = (id: string) => ob.lista.find((f) => f.properties.id === id)?.properties.nome ?? id
   const usate = new Set(Object.values(posti))
-  const obiettivi = new Set(att.obiettivi)
+  const obiettivi = new Set(validi)
 
   const click = (f: GeoFeature) => {
     if (statico || ris) return
@@ -129,11 +139,11 @@ export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etic
       setPosti(resto)
     }
   }
-  const verifica = () => { const r = correggiEtichette(att.obiettivi, posti); setRis(r); onRisultato?.(r) }
+  const verifica = () => { const r = correggiEtichette(validi, posti); setRis(r); onRisultato?.(r) }
   const reset = () => { setPosti({}); setRis(null); setSel(null) }
 
   const colori: Record<string, string> = {}
-  for (const id of att.obiettivi) {
+  for (const id of validi) {
     if (ris) colori[id] = posti[id] === id ? VERDE : ROSSO
     else colori[id] = posti[id] ? '#a5b4fc' : sel ? '#fde68a' : '#e0e7ff'
   }
@@ -142,8 +152,9 @@ export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etic
     <Cornice tipo="etichette" titolo={att.titolo} risultato={ris}
       sottotitolo={ris ? 'In rosso le etichette sbagliate: vicino trovi il nome giusto' : 'Tocca un nome, poi tocca il posto giusto sulla mappa'}
       piede={<div className="ml-auto flex gap-2">{ris ? <BottoneRiprova onClick={reset} /> : <BottoneVerifica onClick={verifica} disabled={statico || Object.keys(posti).length === 0} />}</div>}>
-      <div className="flex gap-3 h-full -m-4" style={{ height: 'calc(100% + 2rem)', width: 'calc(100% + 2rem)' }}>
-        <div className="flex-1 min-w-0">
+      <div className="@container h-full -m-4" style={{ height: 'calc(100% + 2rem)', width: 'calc(100% + 2rem)' }}>
+      <div className="flex gap-3 h-full @max-lg:flex-col @max-lg:gap-0">
+        <div className="flex-1 min-w-0 min-h-0">
           <MapView config={ob.mappa} nascondiNomi zoomAbilitato={!statico}
             selezionabile={(f) => obiettivi.has(f.properties.id!)}
             evidenzia={colori}
@@ -153,7 +164,7 @@ export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etic
             }]))}
             onFeatureClick={click} />
         </div>
-        <div className="w-44 shrink-0 overflow-auto py-3 pr-3 flex flex-col gap-1.5">
+        <div className="w-44 shrink-0 overflow-auto py-3 pr-3 flex flex-col gap-1.5 @max-lg:w-full @max-lg:flex-row @max-lg:py-2 @max-lg:px-2 @max-lg:border-t @max-lg:border-slate-200 @max-lg:[&>*]:shrink-0">
           {ris && <div className="mb-2"><Punteggio r={ris} /></div>}
           {etichette.map((id) => (
             <button key={id} disabled={usate.has(id) || !!ris} onClick={() => setSel(sel === id ? null : id)}
@@ -163,6 +174,7 @@ export function Etichette({ att, onRisultato, statico }: PropsAttivita<Att<'etic
             </button>
           ))}
         </div>
+      </div>
       </div>
     </Cornice>
   )

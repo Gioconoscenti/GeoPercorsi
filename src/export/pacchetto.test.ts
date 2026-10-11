@@ -28,4 +28,11 @@ describe('pacchetto .geopercorso', () => {
   it('rifiuta file non validi', async () => {
     await expect(leggiZip(new Blob(['ciao']))).rejects.toThrow()
   })
+
+  it('rifiuta pacchetti con un percorso danneggiato', async () => {
+    for (const rotto of [{ ...p, tappe: undefined }, { ...p, classe: 7 }, { ...p, tappe: [{ titolo: 'x' }] }]) {
+      const zip = await creaZip(rotto as unknown as Percorso, [])
+      await expect(leggiZip(await zip.arrayBuffer())).rejects.toThrow(/danneggiato/)
+    }
+  })
 })

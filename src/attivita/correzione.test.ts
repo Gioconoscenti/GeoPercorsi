@@ -56,3 +56,13 @@ describe('completa il testo', () => {
     expect(correggiCompleta(testo, ['fiume po', 'adriatico', 'Milano'])).toEqual({ punti: 2, max: 3 })
   })
 })
+
+describe('tentativi', () => {
+  it('tiene il primo tentativo e il migliore', async () => {
+    const { registraTentativo } = await import('./correzione')
+    let e = registraTentativo(undefined, { punti: 3, max: 10 })
+    e = registraTentativo(e, { punti: 9, max: 10 })
+    e = registraTentativo(e, { punti: 5, max: 10 })
+    expect(e).toEqual({ primo: { punti: 3, max: 10 }, migliore: { punti: 9, max: 10 }, tentativi: 3 })
+  })
+})

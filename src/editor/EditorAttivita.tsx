@@ -9,6 +9,7 @@ import { NOMI_ATTIVITA, TOLLERANZA, nuovaAttivita } from '../lib/fabbrica'
 import { Campo, CaricaAsset, Sezione } from './PannelloProprieta'
 import { CampiMappa, SelettoreLuoghi } from './SelettoreMappa'
 import { analizzaCompleta } from '../attivita/correzione'
+import { toast } from '../ui/Toast'
 
 type El = Extract<Elemento, { tipo: 'attivita' }>
 
@@ -43,8 +44,9 @@ export function EditorAttivita({ api, e }: { api: EditorApi; e: El }) {
 
   const cambiaTipo = (t: TipoAttivita) => {
     if (t === a.tipo) return
-    if (!confirm('Cambiando tipo perderai il contenuto attuale dell’attività. Continuare?')) return
+    const prima = a
     set({ ...nuovaAttivita(t, area), titolo: a.titolo })
+    toast(`Attività cambiata in “${NOMI_ATTIVITA[t].nome}”: il contenuto precedente è stato tolto`, { azione: { etichetta: 'Annulla', fn: () => set(prima) } })
   }
 
   return (

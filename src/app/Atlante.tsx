@@ -8,8 +8,10 @@ import { NOMI_AREE, type Area, type MappaConfig } from '../types'
 
 /** Esplorazione libera delle mappe, utile alla LIM */
 export function Atlante() {
-  const { area = 'italia' } = useParams()
-  const [config, setConfig] = useState<MappaConfig>(() => nuovaMappa(area as Area))
+  const { area: param } = useParams()
+  // un indirizzo sbagliato (es. /atlante/xyz) apre l'Italia invece di bloccare l'app
+  const area: Area = param === 'europa' || param === 'mondo' ? param : 'italia'
+  const [config, setConfig] = useState<MappaConfig>(() => nuovaMappa(area))
   const cambiaArea = (a: Area) => setConfig({ ...nuovaMappa(a, config.tipo), etichette: config.etichette })
   return (
     <div className="h-full flex flex-col">

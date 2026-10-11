@@ -116,3 +116,16 @@ export function puntiMassimi(a: import('../types').Attivita): number {
     case 'flashcard': return 0
   }
 }
+
+/** Storia dei tentativi di un'attività: il primo conta per il voto, il migliore mostra il ripasso */
+export interface Esito {
+  primo: Risultato
+  migliore: Risultato
+  tentativi: number
+}
+
+export function registraTentativo(prec: Esito | undefined, r: Risultato): Esito {
+  if (!prec) return { primo: r, migliore: r, tentativi: 1 }
+  const meglio = r.max && (!prec.migliore.max || r.punti / r.max > prec.migliore.punti / prec.migliore.max)
+  return { primo: prec.primo, migliore: meglio ? r : prec.migliore, tentativi: prec.tentativi + 1 }
+}

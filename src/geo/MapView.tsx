@@ -5,7 +5,7 @@ import { select } from 'd3-selection'
 import 'd3-transition'
 import { zoom as d3zoom, zoomIdentity, type ZoomBehavior, type ZoomTransform } from 'd3-zoom'
 import type { ContenutoArea, MappaConfig } from '../types'
-import { LIVELLI, ORDINE, PALETTE_POLITICA, SFONDO, SIMBOLI, STILE_ETICHETTA, livelliPredefiniti, proiezione, stile } from './aree'
+import { COLORI_CONTINENTI, LIVELLI, ORDINE, PALETTE_GRUPPI, PALETTE_POLITICA, SFONDO, SIMBOLI, STILE_ETICHETTA, livelliPredefiniti, proiezione, stile } from './aree'
 import { infoRighe, useGeo, type GeoData, type GeoFeature } from './useGeo'
 import { getRuntime, useAssetUrl } from '../lib/runtime'
 import { GradiBordo, Reticolato, RosaDeiVenti, Scala, coordinate, passoReticolato } from './Strumenti'
@@ -91,7 +91,7 @@ export function MapView(props: MapViewProps) {
   }, [])
 
   return (
-    <div ref={box} className={'relative overflow-hidden select-none ' + (props.className ?? 'w-full h-full')} style={{ background: config.tipo === 'fisica' ? '#9fd0f2' : '#cfe8f7' }}>
+    <div ref={box} data-interattivo className={'relative overflow-hidden select-none ' + (props.className ?? 'w-full h-full')} style={{ background: config.tipo === 'fisica' ? '#9fd0f2' : '#cfe8f7' }}>
       {errore && <div className="absolute inset-0 grid place-items-center text-red-700 text-sm p-4">{errore}</div>}
       {!data && !errore && <div className="absolute inset-0 grid place-items-center text-slate-500 text-sm">Caricamento mappa…</div>}
       {data && size && <MappaInterna {...props} data={data} w={size.w} h={size.h} />}
@@ -107,7 +107,18 @@ function MappaInterna(props: MapViewProps & { data: GeoData; w: number; h: numbe
   const [hover, setHover] = useState<{ f: GeoFeature; x: number; y: number } | null>(null)
   const [aperta, setAperta] = useState<GeoFeature | null>(null)
   const [cursore, setCursore] = useState<[number, number] | null>(null)
+  // su LIM e tablet non c'è il passaggio del mouse: il nome compare per un attimo al tocco
+  const [tocco, setTocco] = useState<{ f: GeoFeature; x: number; y: number } | null>(null)
+  const puntatore = useRef<{ tipo: string; x: number; y: number }>({ tipo: 'mouse', x: 0, y: 0 })
   const zoomOn = props.zoomAbilitato !== false
+
+  // cambiando carta (politica/fisica) la scheda aperta non vale più
+  useEffect(() => { setAperta(null); setTocco(null) }, [config.tipo, config.area])
+  useEffect(() => {
+    if (!tocco) return
+    const t = setTimeout(() => setTocco(null), 2500)
+    return () => clearTimeout(t)
+  }, [tocco])
 
   const livelli = useMemo(() => new Set([...(config.livelli ?? livelliPredefiniti(config.area, config.tipo)), ...SFONDO]), [config.livelli, config.area, config.tipo])
   // "confini" è uno sfondo ma si può spegnere
@@ -211,10 +222,28 @@ function MappaInterna(props: MapViewProps & { data: GeoData; w: number; h: numbe
     if (!cliccabile(f)) return
     props.onFeatureClick?.(f)
     if (props.scheda) setAperta(f)
+    const pt = puntatore.current
+    if (pt.tipo !== 'mouse' && !nascondiNomi && f.properties.nome) setTocco({ f, x: pt.x, y: pt.y })
   }
 
   const k = t.k
   const hoverId = hover?.f.properties.id
+
+  // Forme disegna centinaia di path: riceve funzioni stabili (che leggono le versioni aggiornate da un ref)
+  // e si ridisegna solo quando cambia "versione", non a ogni movimento del mouse
+  const fn = useRef({ visibile, colore, cliccabile, fuori, onClick })
+  fn.current = { visibile, colore, cliccabile, fuori, onClick }
+  const stabili = useMemo(() => ({
+    visibile: (f: GeoFeature) => fn.current.visibile(f),
+    colore: (f: GeoFeature) => fn.current.colore(f),
+    cliccabile: (f: GeoFeature) => fn.current.cliccabile(f),
+    fuori: (f: GeoFeature) => fn.current.fuori(f),
+    onClick: (f: GeoFeature) => fn.current.onClick(f),
+    onHover: (f: GeoFeature | null, e?: React.MouseEvent) => setHover(f ? { f, x: e!.clientX, y: e!.clientY } : null),
+  }), [])
+  const vicino = t.k >= 2.5
+  const versione = useMemo(() => ({}), [livelli, confiniVisibili, focus, vicino, props.selezionabile, props.evidenzia, config.colori])
+  const disegnoHover = hoverId ? disegni.find((d) => d.d && d.f.properties.id === hoverId) : undefined
 
   return (
     <>
@@ -225,13 +254,31 @@ function MappaInterna(props: MapViewProps & { data: GeoData; w: number; h: numbe
         className="block touch-none"
         style={{ cursor: props.onMapClick ? 'crosshair' : zoomOn ? 'grab' : 'default' }}
         onMouseLeave={() => { setHover(null); setCursore(null) }}
+        onPointerDown={(e) => { puntatore.current = { tipo: e.pointerType, x: e.clientX, y: e.clientY } }}
         onMouseMove={strumenti ? (e) => setCursore(daSchermo(e)) : undefined}
         onClick={props.onMapClick ? (e) => { const ll = daSchermo(e); if (ll) props.onMapClick!(ll) } : undefined}
       >
         <g transform={t.toString()}>
-          <Forme disegni={disegni} visibile={visibile} tipo={config.tipo} colore={colore} cliccabile={cliccabile} hoverId={hoverId} fuori={fuori} focus={focus}
-            onHover={(f, e) => setHover(f ? { f, x: e!.clientX, y: e!.clientY } : null)} onClick={onClick}
+          <Forme disegni={disegni} {...stabili} versione={versione} tipo={config.tipo} focus={focus}
             statiTrasparenti={livelli.has('macroregioni') || livelli.has('macroaree')} />
+          {/* contorno dell'elemento sotto il mouse, disegnato a parte per non ridisegnare tutta la carta */}
+          {disegnoHover && cliccabile(disegnoHover.f) && (() => {
+            const s = stile(disegnoHover.f.properties.livello, config.tipo, disegnoHover.f.properties)
+            return (
+              <path d={disegnoHover.d} fill={disegnoHover.linea ? 'none' : 'rgba(15,23,42,0.08)'}
+                stroke={disegnoHover.linea ? colore(disegnoHover.f) ?? s.stroke : '#111827'}
+                strokeWidth={s.sw + (disegnoHover.linea ? 1.5 : 1.2)} vectorEffect="non-scaling-stroke" style={{ pointerEvents: 'none' }} />
+            )
+          })()}
+          {/* Stati e isole piccolissimi (Malta, San Marino, Caraibi…): un cerchio da toccare grande almeno 28 px */}
+          {disegni.filter((d) => d.d && !d.linea && d.label && d.larghezza * k < 14 && visibile(d.f) && cliccabile(d.f)).map((d, i) => (
+            <circle key={'h' + i} cx={d.label![0]} cy={d.label![1]} r={14 / k}
+              fill="transparent" stroke={nascondiNomi ? '#475569' : 'none'} strokeOpacity={0.45} strokeDasharray="2 2" strokeWidth={1}
+              vectorEffect="non-scaling-stroke" className="cursor-pointer"
+              onClick={() => onClick(d.f)}
+              onMouseMove={(e) => setHover({ f: d.f, x: e.clientX, y: e.clientY })}
+              onMouseLeave={() => setHover(null)} />
+          ))}
           {strumenti && <Reticolato path={path} passo={passoReticolato(ampiezzaBase / t.k)} />}
           {/* punti */}
           {disegni.filter((d) => d.p && visibile(d.f)).map((d, i) => {
@@ -301,16 +348,23 @@ function MappaInterna(props: MapViewProps & { data: GeoData; w: number; h: numbe
         document.body,
       )}
 
+      {tocco && createPortal(
+        <div className="fixed z-[200] pointer-events-none px-3 py-1.5 rounded-lg bg-slate-900/90 text-white text-base font-bold shadow-lg -translate-x-1/2" style={{ left: tocco.x, top: tocco.y - 52 }}>
+          {tocco.f.properties.nome}
+        </div>,
+        document.body,
+      )}
+
       {zoomOn && (
-        <div className="absolute right-2 bottom-2 flex flex-col gap-1">
-          <button className="map-btn" onClick={() => zoomBy(1.6)} title="Ingrandisci">＋</button>
-          <button className="map-btn" onClick={() => zoomBy(1 / 1.6)} title="Riduci">－</button>
-          <button className="map-btn text-xs" onClick={zoomReset} title="Vista intera">⤢</button>
+        <div className="absolute right-2 bottom-2 flex flex-col gap-1.5">
+          <button className="map-btn" onClick={() => zoomBy(1.6)} title="Ingrandisci" aria-label="Ingrandisci">＋</button>
+          <button className="map-btn" onClick={() => zoomBy(1 / 1.6)} title="Riduci" aria-label="Riduci">－</button>
+          <button className="map-btn text-base" onClick={zoomReset} title="Vista intera" aria-label="Vista intera">⤢</button>
         </div>
       )}
 
       {props.scheda && focusFeature?.properties.id && !aperta && (
-        <button className="absolute right-14 bottom-2 btn bg-white shadow border border-slate-200 text-slate-800" onClick={() => setAperta(focusFeature)}>
+        <button className="absolute right-16 bottom-2 btn py-2.5 bg-white shadow border border-slate-200 text-slate-800" onClick={() => setAperta(focusFeature)}>
           ℹ️ Scheda: {focusFeature.properties.nome}
         </button>
       )}
@@ -329,7 +383,8 @@ const Forme = memo(function Forme(p: {
   tipo: MappaConfig['tipo']
   colore: (f: GeoFeature) => string | undefined
   cliccabile: (f: GeoFeature) => boolean
-  hoverId?: string
+  /** cambia quando cambia qualcosa che le funzioni qui sopra leggono */
+  versione: object
   onHover: (f: GeoFeature | null, e?: React.MouseEvent) => void
   onClick: (f: GeoFeature) => void
   fuori: (f: GeoFeature) => boolean
@@ -344,14 +399,13 @@ const Forme = memo(function Forme(p: {
         const s = stile(pr.livello, p.tipo, pr)
         const c = p.colore(d.f)
         const click = p.cliccabile(d.f)
-        const isHover = click && p.hoverId === pr.id
         const attenuato = p.fuori(d.f)
         const evidenziato = !!p.focus && (pr.id === p.focus || pr.ref === p.focus)
         // con lo zoom, province e regioni interne si colorano per distinguerle
         const colorata = !!p.focus && !attenuato && (pr.livello === 'province' || pr.livello === 'suddivisioni' || (pr.livello === 'stati' && !!pr.cont))
         const trasparente = p.statiTrasparenti && pr.livello === 'stati' && !colorata
         const fill = d.linea ? 'none' : c ?? (colorata ? PALETTE_POLITICA[(pr._c ?? 0) % PALETTE_POLITICA.length] : trasparente ? 'transparent' : s.fill)
-        const stroke = d.linea && c ? c : isHover || evidenziato ? '#111827' : s.stroke
+        const stroke = d.linea && c ? c : evidenziato ? '#111827' : s.stroke
         return (
           <g key={i}>
             <path
@@ -360,10 +414,10 @@ const Forme = memo(function Forme(p: {
               fillOpacity={c && !d.linea ? 0.9 : colorata ? 0.85 : s.op}
               opacity={attenuato ? 0.3 : undefined}
               stroke={stroke}
-              strokeWidth={isHover ? s.sw + (d.linea ? 1.5 : 1.2) : evidenziato ? 2.5 : s.sw}
+              strokeWidth={evidenziato ? 2.5 : s.sw}
               strokeDasharray={evidenziato ? undefined : s.dash}
               vectorEffect="non-scaling-stroke"
-              style={{ filter: isHover && !d.linea ? 'brightness(0.92)' : undefined, pointerEvents: click ? undefined : 'none' }}
+              style={{ pointerEvents: click ? undefined : 'none' }}
               className={click ? 'cursor-pointer' : ''}
               onMouseMove={click && !d.linea ? (e) => p.onHover(d.f, e) : undefined}
               onMouseLeave={click ? () => p.onHover(null) : undefined}
@@ -403,30 +457,82 @@ function Etichetta({ x, y, k, testo, st, punto, box }: { x: number; y: number; k
   )
 }
 
+/** Gruppi del pannello dei livelli */
+const GRUPPI_LIVELLI: { titolo: string; ids: string[] }[] = [
+  { titolo: 'Politica', ids: ['continenti', 'macroaree', 'macroregioni', 'stati', 'regioni', 'suddivisioni', 'province', 'citta', 'capoluoghi', 'grandi_citta', 'confini'] },
+  { titolo: 'Rilievo', ids: ['rilievi', 'vette', 'vulcani', 'pianure', 'altopiani', 'deserti', 'isole', 'penisole'] },
+  { titolo: 'Acque', ids: ['mari', 'fiumi', 'laghi', 'coste'] },
+  { titolo: 'Strumenti del geografo', ids: ['paralleli', 'fasce', 'fusi', 'reticolato'] },
+]
+const LINEE = new Set(['fiumi', 'paralleli', 'confini'])
+
+/** Piccolo campione grafico di un livello: serve da legenda */
+function Campione({ id, tipo }: { id: string; tipo: MappaConfig['tipo'] }) {
+  const box = (c: ReactNode) => <svg width={30} height={20} viewBox="-15 -10 30 20" className="shrink-0" aria-hidden>{c}</svg>
+  if (id === 'reticolato') return box(<path d="M-14,-4H14M-14,4H14M-6,-9V9M6,-9V9" stroke="#64748b" strokeWidth={1} fill="none" />)
+  if (id === 'citta') return box(<><path d="M-11,-4H-3V4H-11Z" fill={SIMBOLI.citta.fill} stroke="#fff" /><path d={SIMBOLI.citta.path} transform="translate(7,0)" fill={SIMBOLI.citta.fill} stroke="#fff" /></>)
+  if (SIMBOLI[id] && !['laghi', 'isole'].includes(id)) return box(<path d={SIMBOLI[id].path} fill={SIMBOLI[id].fill} stroke="#475569" strokeWidth={0.6} />)
+  const st = stile(id, tipo, {})
+  if (LINEE.has(id)) return box(<path d="M-13,3C-6,-6 2,8 13,-3" fill="none" stroke={st.stroke} strokeWidth={Math.max(1.5, st.sw)} strokeDasharray={st.dash} />)
+  if (['regioni', 'stati', 'macroregioni', 'macroaree', 'continenti'].includes(id)) {
+    const colori = id === 'continenti' ? Object.values(COLORI_CONTINENTI) : id === 'macroregioni' || id === 'macroaree' ? PALETTE_GRUPPI : PALETTE_POLITICA
+    return box(<>{[0, 1, 2].map((k) => <rect key={k} x={-14 + k * 9.5} y={-8} width={9} height={16} fill={colori[k]} stroke="#6b7280" strokeWidth={0.6} />)}</>)
+  }
+  return box(<rect x={-13} y={-8} width={26} height={16} rx={3} fill={st.fill === 'transparent' ? '#fff' : st.fill} fillOpacity={st.op ?? 1} stroke={st.stroke === 'none' ? '#cbd5e1' : st.stroke} strokeDasharray={st.dash} />)
+}
+
 function Controlli({ config, onChange, cambioTipo }: { config: MappaConfig; onChange?: (c: MappaConfig) => void; cambioTipo: boolean }) {
+  const [aperto, setAperto] = useState(false)
   const defs = LIVELLI[config.tipo][config.area]
   const attivi = config.livelli ?? livelliPredefiniti(config.area, config.tipo)
   const toggle = (id: string) => onChange?.({ ...config, livelli: attivi.includes(id) ? attivi.filter((x) => x !== id) : [...attivi, id] })
+  const gruppi = GRUPPI_LIVELLI.map((g) => ({ ...g, voci: defs.filter((l) => g.ids.includes(l.id)) }))
+  const altri = defs.filter((l) => !GRUPPI_LIVELLI.some((g) => g.ids.includes(l.id)))
+  if (altri.length) gruppi.push({ titolo: 'Altro', ids: [], voci: altri })
   return (
-    <div className="absolute left-2 top-2 right-14 flex flex-wrap gap-1 items-center pointer-events-none">
+    <div className="absolute left-2 top-2 right-14 flex flex-wrap gap-1.5 items-start pointer-events-none">
       {cambioTipo && (
-        <div className="pointer-events-auto flex rounded-full bg-white shadow overflow-hidden text-sm font-semibold mr-1">
+        <div className="pointer-events-auto flex rounded-full bg-white shadow overflow-hidden text-sm font-semibold">
           {(['politica', 'fisica'] as const).map((tp) => (
-            <button key={tp} onClick={() => onChange?.({ ...config, tipo: tp, livelli: undefined, colori: {} })}
-              className={'px-3 py-1 ' + (config.tipo === tp ? (tp === 'fisica' ? 'bg-amber-700 text-white' : 'bg-sky-600 text-white') : 'text-slate-700 hover:bg-slate-100')}>
+            <button key={tp} onClick={() => onChange?.({ ...config, tipo: tp, livelli: undefined, colori: {} })} aria-pressed={config.tipo === tp}
+              className={'px-4 py-2.5 ' + (config.tipo === tp ? (tp === 'fisica' ? 'bg-amber-700 text-white' : 'bg-sky-600 text-white') : 'text-slate-700 hover:bg-slate-100')}>
               {tp === 'politica' ? 'Politica' : 'Fisica'}
             </button>
           ))}
         </div>
       )}
-      {defs.map((l) => (
-        <button key={l.id} onClick={() => toggle(l.id)}
-          className={'pointer-events-auto px-2 py-0.5 rounded-full text-xs shadow border ' + (attivi.includes(l.id) ? 'bg-white border-slate-300 text-slate-800' : 'bg-white/60 border-transparent text-slate-400 line-through')}>
-          {l.icona} {l.nome}
+      <div className="relative pointer-events-auto">
+        <button onClick={() => setAperto(!aperto)} aria-expanded={aperto}
+          className={'px-4 py-2.5 rounded-full text-sm font-semibold shadow border ' + (aperto ? 'bg-slate-800 text-white border-slate-800' : 'bg-white border-slate-200 text-slate-800 hover:bg-slate-50')}>
+          🗂️ Livelli e legenda <span className="opacity-60">({defs.filter((l) => attivi.includes(l.id)).length})</span>
         </button>
-      ))}
-      <button onClick={() => onChange?.({ ...config, etichette: !config.etichette })}
-        className={'pointer-events-auto px-2 py-0.5 rounded-full text-xs shadow border ' + (config.etichette ? 'bg-slate-800 text-white border-slate-800' : 'bg-white/60 text-slate-500 border-transparent')}>
+        {aperto && (
+          <div className="absolute left-0 top-full mt-1.5 w-72 max-w-[80vw] bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-20 overflow-auto"
+            style={{ maxHeight: 'min(70vh, 520px)' }}>
+            {gruppi.filter((g) => g.voci.length).map((g) => (
+              <div key={g.titolo} className="mb-1">
+                <div className="px-2 pt-1.5 pb-0.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">{g.titolo}</div>
+                {g.voci.map((l) => {
+                  const on = attivi.includes(l.id)
+                  return (
+                    <button key={l.id} onClick={() => toggle(l.id)} role="switch" aria-checked={on}
+                      className={'w-full min-h-11 flex items-center gap-2.5 px-2 rounded-xl text-left text-sm font-semibold ' + (on ? 'text-slate-900 hover:bg-slate-50' : 'text-slate-500 hover:bg-slate-50')}>
+                      <span className={'w-5 h-5 shrink-0 rounded-md border-2 grid place-items-center text-xs ' + (on ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300')}>{on ? '✓' : ''}</span>
+                      <span className={on ? '' : 'opacity-50'}><Campione id={l.id} tipo={config.tipo} /></span>
+                      <span className="flex-1">{l.nome}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
+            {config.tipo === 'politica' && attivi.includes('citta') && (
+              <p className="px-2 pt-1 text-xs text-slate-500">■ quadrato: capitale o capoluogo · ● cerchio: altra città</p>
+            )}
+          </div>
+        )}
+      </div>
+      <button onClick={() => onChange?.({ ...config, etichette: !config.etichette })} aria-pressed={config.etichette}
+        className={'pointer-events-auto px-4 py-2.5 rounded-full text-sm font-semibold shadow border ' + (config.etichette ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-700 border-slate-200')}>
         Aa Nomi
       </button>
     </div>
@@ -437,9 +543,9 @@ export function SchedaArea({ f, contenuto, onClose }: { f: GeoFeature; contenuto
   const p = f.properties
   const img = useAssetUrl(contenuto?.assetId)
   return (
-    <div className="absolute left-2 bottom-2 w-80 max-w-[calc(100%-4rem)] max-h-[85%] overflow-auto bg-white rounded-xl shadow-xl border border-slate-200 p-4 text-slate-800 z-10">
-      <button onClick={onClose} className="absolute right-2 top-2 w-7 h-7 rounded-full hover:bg-slate-100 text-slate-500" aria-label="Chiudi">✕</button>
-      <div className="flex items-center gap-2 pr-6">
+    <div className="absolute right-16 bottom-2 w-80 max-w-[calc(100%-5rem)] max-h-[calc(100%-1rem)] overflow-auto bg-white rounded-xl shadow-xl border border-slate-200 p-4 text-slate-800 z-10">
+      <button onClick={onClose} className="absolute right-1.5 top-1.5 w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 text-lg" aria-label="Chiudi la scheda">✕</button>
+      <div className="flex items-center gap-2 pr-9">
         {p.flag && <img src={getRuntime().flagUrl(p.flag)} alt="" className="h-6 rounded-sm shadow-sm" />}
         <h3 className="text-xl font-bold leading-tight">{p.nome}</h3>
       </div>

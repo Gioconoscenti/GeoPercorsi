@@ -20,7 +20,7 @@ export function Cornice({ tipo, titolo, risultato, children, piede, sottotitolo 
 }) {
   const info = NOMI_ATTIVITA[tipo]
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-2xl shadow-lg border-2 border-indigo-100 overflow-hidden text-slate-800">
+    <div data-interattivo className="w-full h-full flex flex-col bg-white rounded-2xl shadow-lg border-2 border-indigo-100 overflow-hidden text-slate-800">
       <div className="flex items-center gap-2 px-4 py-2.5 bg-indigo-50 border-b border-indigo-100">
         <span className="text-2xl">{info.icona}</span>
         <div className="min-w-0 flex-1">

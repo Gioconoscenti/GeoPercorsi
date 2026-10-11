@@ -3,6 +3,7 @@ import { Home } from './Home'
 import { Atlante } from './Atlante'
 import { Editor } from '../editor/Editor'
 import { PaginaPlayer } from '../player/PaginaPlayer'
+import { Toasts } from '../ui/Toast'
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
         <Route path="/presenta/:id" element={<PaginaPlayer modo="lim" />} />
         <Route path="/gioca/:id" element={<PaginaPlayer modo="alunno" />} />
       </Routes>
+      <Toasts />
     </HashRouter>
   )
 }

@@ -4,7 +4,7 @@ import path from 'node:path'
 import { setRuntime } from '../lib/runtime'
 import { caricaGeo } from '../geo/useGeo'
 import { genera, generatoriPossibili, livelliDisponibili, pool } from './generatori'
-import type { Attivita } from '../types'
+import type { Area, Attivita, TipoMappa } from '../types'
 
 // le carte vere di public/geo
 beforeAll(() => {
@@ -222,4 +222,34 @@ describe('percorsi dei capitoli', () => {
     }
     expect(percorsi.filter((p) => p.classe === 2).map((p) => p.titolo)).toContain('La Regione nordica')
   }, 60000)
+})
+
+describe('tutti i generatori', () => {
+  // ogni combinazione proposta dal "Genera dalla mappa" deve dare un'attività giocabile
+  const ZOOM: Record<Area, (string | undefined)[]> = {
+    italia: [undefined, 'regione-3', 'regione-9', 'regione-2'],
+    europa: [undefined, 'stato-FRA', 'stato-LUX', 'macro-balcanica', 'stato-ISL'],
+    mondo: [undefined, 'continente-africa', 'stato-USA', 'stato-JPN'],
+  }
+  for (const area of ['italia', 'europa', 'mondo'] as Area[]) {
+    for (const tipo of ['politica', 'fisica'] as TipoMappa[]) {
+      it(`${area} ${tipo}`, async () => {
+        const geo = await caricaGeo(area, tipo)
+        for (const focus of ZOOM[area]) {
+          for (const livello of livelliDisponibili(geo, focus)) {
+            for (const gen of generatoriPossibili(geo, livello, focus)) {
+              const nome = `${area}/${tipo}/${focus ?? 'tutto'}/${livello}/${gen}`
+              const a = await genera(gen, { area, tipo, livello, quanti: 8, focus })
+              if (a.tipo !== 'quiz') continue
+              for (const d of a.domande) {
+                expect(d.opzioni.length, nome).toBeGreaterThanOrEqual(3)
+                expect(new Set(d.opzioni).size, nome).toBe(d.opzioni.length)
+                for (const c of d.corrette) expect(c >= 0 && c < d.opzioni.length, nome).toBe(true)
+              }
+            }
+          }
+        }
+      }, 60000)
+    }
+  }
 })

@@ -12,7 +12,7 @@ import { CaricaAsset, Campo } from './PannelloProprieta'
 export function Modal({ titolo, children, onClose, piede }: { titolo: string; children: ReactNode; onClose: () => void; piede?: ReactNode }) {
   return (
     <div className="fixed inset-0 z-[90] bg-slate-900/60 grid place-items-center p-4" onMouseDown={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden" onMouseDown={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden" onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center px-5 py-3 border-b border-slate-200">
           <h2 className="text-lg font-extrabold">{titolo}</h2>
           <button className="ml-auto w-9 h-9 rounded-full hover:bg-slate-100 text-xl" onClick={onClose}>✕</button>

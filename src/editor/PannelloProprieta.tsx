@@ -190,8 +190,14 @@ function ProprietaElemento({ api, e }: { api: EditorApi; e: Elemento }) {
               {api.percorso.tappe.map((t, i) => <option key={t.id} value={t.id}>Tappa {i + 1}: {t.titolo}</option>)}
               <option value="__url">Un sito web…</option>
             </select>
+            {e.vaiA && !api.percorso.tappe.some((t) => t.id === e.vaiA) && <span className="text-xs text-rose-600">La tappa di destinazione è stata eliminata: scegline un’altra</span>}
           </Campo>
-          {e.url !== undefined && <Campo label="Indirizzo"><input className="campo" value={e.url} onChange={(x) => set({ url: x.target.value })} /></Campo>}
+          {e.url !== undefined && (
+            <Campo label="Indirizzo">
+              <input className="campo" value={e.url} onChange={(x) => set({ url: x.target.value })} />
+              {e.url && !/^https?:\/\//i.test(e.url) && <span className="text-xs text-rose-600">L’indirizzo deve iniziare con https://</span>}
+            </Campo>
+          )}
           <Campo label="Colore"><SceltaColore valore={e.colore} onChange={(c) => set({ colore: c })} /></Campo>
           <p className="text-xs text-slate-500">Con i pulsanti puoi creare percorsi a bivi, come in un gioco.</p>
         </Sezione>

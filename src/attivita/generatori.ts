@@ -115,9 +115,31 @@ function mappaGioco(o: OpzioniGeneratore): MappaConfig {
   return { area: o.area, tipo: o.tipo, livelli, etichette: false, colori: {}, ...(o.focus ? { focus: o.focus } : {}) }
 }
 
+/** Elementi di gioco di un'attività (domande, luoghi, coppie…) */
+const elementiDi = (a: Attivita): unknown[] => {
+  switch (a.tipo) {
+    case 'quiz': return a.domande
+    case 'vf': return a.affermazioni
+    case 'abbina': return a.coppie
+    case 'completa': return [a.testo]
+    case 'trova':
+    case 'etichette': return a.obiettivi
+    case 'flashcard': return a.carte
+    case 'ordina': return a.elementi
+    case 'coordinate': return a.punti
+  }
+}
+
 export async function genera(gen: TipoGeneratore, o: OpzioniGeneratore): Promise<Attivita> {
+  const a = await generaInterno(gen, o)
+  if (!elementiDi(a).length) throw new Error('Con queste scelte non si riesce a creare nessuna domanda: prova un altro tipo di gioco o un’altra zona.')
+  return a
+}
+
+async function generaInterno(gen: TipoGeneratore, o: OpzioniGeneratore): Promise<Attivita> {
   const geo = await caricaGeo(o.area, o.tipo)
-  const pol = o.area === 'mondo' ? geo : await caricaGeo(o.area, 'politica')
+  // regioni, Stati e continenti stanno sempre nella carta politica
+  const pol = o.tipo === 'politica' ? geo : await caricaGeo(o.area, 'politica')
   const tutti = pool(geo, o.livello, o.continente, o.focus)
   const scelti = mescola(tutti).slice(0, o.quanti)
   const nomeLiv = NOMI_LIVELLI[o.livello] ?? o.livello

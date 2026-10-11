@@ -43,7 +43,8 @@ export function ElementoView({ el, modo, onVai, onRisultato }: PropsElemento) {
           onClick={() => {
             if (statico) return
             if (el.vaiA) onVai?.(el.vaiA)
-            else if (el.url) window.open(el.url, '_blank', 'noopener')
+            // solo siti web veri: niente "javascript:" o altri schemi nel file che gira tra gli alunni
+            else if (el.url && /^https?:\/\//i.test(el.url)) window.open(el.url, '_blank', 'noopener')
           }}
         >
           {el.etichetta}

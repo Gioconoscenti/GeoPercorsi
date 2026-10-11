@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { STAGE_H, STAGE_W, type Tappa } from '../types'
+import { STAGE_H, STAGE_W, type Elemento, type Tappa } from '../types'
 import { useAssetUrl } from '../lib/runtime'
 import { ElementoView, type Modo } from '../elementi/ElementoView'
 import type { Risultato } from '../attivita/correzione'
@@ -43,15 +43,20 @@ interface PropsPalco {
   modo: Modo
   onVai?: (id: string) => void
   onRisultato?: (elId: string, r: Risultato) => void
+  /**
+   * false: tappa già visitata ma non visibile. Restano montate solo le attività (così non perdono lo stato),
+   * gli altri elementi (video, audio…) si smontano per non continuare a suonare
+   */
+  attiva?: boolean
 }
 
-export function Palco({ tappa, modo, onVai, onRisultato }: PropsPalco) {
+export function Palco({ tappa, modo, onVai, onRisultato, attiva = true }: PropsPalco) {
   const { ref, w } = useDimensioni<HTMLDivElement>()
   const verticale = modo === 'alunno' && w > 0 && w < 720
   return (
     <div ref={ref} className="w-full h-full">
       {w > 0 && (verticale ? (
-        <PalcoVerticale tappa={tappa} modo={modo} onVai={onVai} onRisultato={onRisultato} />
+        <PalcoVerticale tappa={tappa} modo={modo} onVai={onVai} onRisultato={onRisultato} attiva={attiva} />
       ) : (
         <Scalato className="bg-slate-800">
           {() => (
@@ -59,7 +64,7 @@ export function Palco({ tappa, modo, onVai, onRisultato }: PropsPalco) {
               <SfondoTappa tappa={tappa} />
               {tappa.elementi.map((el) => (
                 <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.w, height: el.h }}>
-                  <ElementoView el={el} modo={modo} onVai={onVai} onRisultato={(r) => onRisultato?.(el.id, r)} />
+                  {(attiva || el.tipo === 'attivita') && <ElementoView el={el} modo={modo} onVai={onVai} onRisultato={(r) => onRisultato?.(el.id, r)} />}
                 </div>
               ))}
             </div>
@@ -71,8 +76,23 @@ export function Palco({ tappa, modo, onVai, onRisultato }: PropsPalco) {
 }
 
 /** Su schermi stretti (telefono) gli elementi vengono impilati uno sotto l'altro */
-function PalcoVerticale({ tappa, modo, onVai, onRisultato }: PropsPalco) {
-  const elementi = [...tappa.elementi].sort((a, b) => a.y - b.y || a.x - b.x)
+function PalcoVerticale({ tappa, modo, onVai, onRisultato, attiva = true }: PropsPalco) {
+  // un punto informativo il cui centro cade dentro un'immagine o un PDF resta agganciato a quell'elemento
+  const ospiti = tappa.elementi.filter((e) => e.tipo === 'immagine' || e.tipo === 'pdf')
+  const ospite = (h: Elemento) => {
+    const cx = h.x + h.w / 2
+    const cy = h.y + h.h / 2
+    // il più in alto nella pila (l'ultimo) vince
+    return [...ospiti].reverse().find((o) => cx >= o.x && cx <= o.x + o.w && cy >= o.y && cy <= o.y + o.h)
+  }
+  const agganciati = new Map<string, Elemento[]>()
+  for (const e of tappa.elementi) {
+    if (e.tipo !== 'hotspot') continue
+    const o = ospite(e)
+    if (o) agganciati.set(o.id, [...(agganciati.get(o.id) ?? []), e])
+  }
+  const sciolti = new Set([...agganciati.values()].flat().map((e) => e.id))
+  const elementi = [...tappa.elementi].filter((e) => !sciolti.has(e.id)).sort((a, b) => a.y - b.y || a.x - b.x)
   return (
     <div className="relative w-full h-full overflow-auto">
       <SfondoTappa tappa={tappa} />
@@ -88,7 +108,13 @@ function PalcoVerticale({ tappa, modo, onVai, onRisultato }: PropsPalco) {
           const contenuto = el.tipo === 'testo' ? { ...el, size: Math.max(16, Math.min(el.size * 0.6, 34)) } : el
           return (
             <div key={el.id} className="relative w-full" style={style}>
-              <ElementoView el={contenuto} modo={modo} onVai={onVai} onRisultato={(r) => onRisultato?.(el.id, r)} />
+              {(attiva || el.tipo === 'attivita') && <ElementoView el={contenuto} modo={modo} onVai={onVai} onRisultato={(r) => onRisultato?.(el.id, r)} />}
+              {attiva && agganciati.get(el.id)?.map((h) => (
+                <div key={h.id} className="absolute w-11 h-11 -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${((h.x + h.w / 2 - el.x) / el.w) * 100}%`, top: `${((h.y + h.h / 2 - el.y) / el.h) * 100}%` }}>
+                  <ElementoView el={{ ...h, w: 44, h: 44 }} modo={modo} onVai={onVai} />
+                </div>
+              ))}
             </div>
           )
         })}

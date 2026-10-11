@@ -10,6 +10,8 @@ export function scegliFile(accept: string, multiplo = false): Promise<File[]> {
     input.accept = accept
     input.multiple = multiplo
     input.onchange = () => res(Array.from(input.files ?? []))
+    // chiudendo la finestra senza scegliere: lista vuota (evento "cancel", browser recenti)
+    input.addEventListener('cancel', () => res([]))
     input.click()
   })
 }
