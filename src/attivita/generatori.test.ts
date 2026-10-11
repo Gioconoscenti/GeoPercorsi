@@ -253,3 +253,90 @@ describe('tutti i generatori', () => {
     }
   }
 })
+
+describe('grafici e carte mute', () => {
+  it('il grafico generato ha righe diverse e la domanda sul massimo ha la risposta giusta', async () => {
+    for (let k = 0; k < 20; k++) {
+      const a = await genera('grafico', { area: 'italia', tipo: 'fisica', livello: 'vette', quanti: 6 })
+      if (a.tipo !== 'grafico') throw new Error('non è un grafico')
+      expect(a.grafico.righe.length).toBeGreaterThanOrEqual(3)
+      const valori = a.grafico.righe.map((r) => r.valori[0])
+      expect(new Set(valori).size).toBe(valori.length)
+      const max = a.grafico.righe.reduce((m, r) => (r.valori[0] > m.valori[0] ? r : m))
+      const dom = a.domande.find((d) => d.domanda.includes('più alta'))!
+      expect(dom.opzioni[dom.corrette[0]]).toBe(max.etichetta)
+      // ogni domanda ha una risposta giusta che sta tra le opzioni e nessuna opzione ripetuta
+      for (const d of a.domande) {
+        expect(d.corrette.length).toBeGreaterThan(0)
+        expect(d.corrette.every((c) => c >= 0 && c < d.opzioni.length)).toBe(true)
+        expect(new Set(d.opzioni).size).toBe(d.opzioni.length)
+      }
+    }
+  })
+
+  it('con "nomi" il grafico usa solo quegli Stati, nell’ordine dato, con gli abitanti in milioni', async () => {
+    const a = await genera('grafico', { area: 'europa', tipo: 'politica', livello: 'stati', quanti: 3, nomi: ['Italia', 'Francia', 'Germania'] })
+    if (a.tipo !== 'grafico') throw new Error('non è un grafico')
+    expect(a.grafico.righe.map((r) => r.etichetta)).toEqual(['Italia', 'Francia', 'Germania'])
+    expect(a.grafico.colonne[0].unita).toBe('milioni')
+    expect(a.grafico.righe[0].valori[0]).toBeGreaterThan(55)
+    expect(a.grafico.righe[0].valori[0]).toBeLessThan(65)
+  })
+
+  it('la carta muta mescola più livelli della zona e rispetta il numero richiesto', async () => {
+    const a = await genera('carta-muta', { area: 'italia', tipo: 'fisica', livello: '', quanti: 12, focus: 'regione-3' })
+    if (a.tipo !== 'etichette') throw new Error('non sono etichette')
+    const fis = await caricaGeo('italia', 'fisica')
+    const livelli = new Set(a.obiettivi.map((id) => fis.byId.get(id)!.properties.livello))
+    expect(a.obiettivi).toHaveLength(12)
+    expect(livelli.size).toBeGreaterThanOrEqual(2)
+    expect(a.mappa.focus).toBe('regione-3')
+    await expect(genera('carta-muta', { area: 'italia', tipo: 'politica', livello: '', quanti: 10, focus: 'regione-2' })).rejects.toThrow(/troppo pochi/)
+  })
+
+  it('il climogramma: le domande sono calcolate dai dati', async () => {
+    const { domandeClimogramma, CLIMI } = await import('../data/dati-didattici')
+    const dom = domandeClimogramma('Roma')
+    const caldo = dom.find((d) => d.domanda.includes('più caldo'))!
+    expect(caldo.opzioni[caldo.corrette[0]]).toBe('luglio')
+    const piovoso = dom.find((d) => d.domanda.includes('più piovoso'))!
+    expect(piovoso.opzioni[piovoso.corrette[0]]).toBe('novembre')
+    const secca = dom.find((d) => d.domanda.includes('piove meno'))!
+    expect(secca.opzioni[secca.corrette[0]]).toBe('estate')
+    for (const c of Object.values(CLIMI)) {
+      expect(c.precipitazioni).toHaveLength(12)
+      expect(c.temperature).toHaveLength(12)
+    }
+  })
+
+  it('scala degli assi e punteggio del grafico', async () => {
+    const { scalaAsse } = await import('./Grafico')
+    expect(scalaAsse(4806)).toEqual({ max: 5000, passo: 1000 })
+    expect(scalaAsse(7.1).max).toBeGreaterThanOrEqual(7.1)
+    expect(scalaAsse(0).max).toBeGreaterThan(0)
+    const { puntiMassimi } = await import('./correzione')
+    const { nuovaAttivita } = await import('../lib/fabbrica')
+    const g = nuovaAttivita('grafico', 'italia')
+    expect(puntiMassimi(g)).toBe(g.tipo === 'grafico' ? g.domande.length : -1)
+  })
+})
+
+describe('climogrammi: domande leggibili sul grafico', () => {
+  it('le opzioni sui mesi estremi sono nettamente diverse dalla risposta e ogni città ha almeno 4 domande', async () => {
+    const { domandeClimogramma, CLIMI } = await import('../data/dati-didattici')
+    const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre']
+    for (const [citta, c] of Object.entries(CLIMI)) {
+      for (let k = 0; k < 10; k++) {
+        const dom = domandeClimogramma(citta)
+        expect(dom.length, citta).toBeGreaterThanOrEqual(4)
+        for (const d of dom) {
+          const serie = d.domanda.includes('piovoso') ? c.precipitazioni : d.domanda.startsWith('Quale di questi mesi')  ? c.temperature : null
+          if (!serie) continue
+          const giusto = MESI.indexOf(d.opzioni[d.corrette[0]])
+          const margine = d.domanda.includes('piovoso') ? 15 : 3
+          for (const o of d.opzioni) if (o !== d.opzioni[d.corrette[0]]) expect(Math.abs(serie[MESI.indexOf(o)] - serie[giusto]), `${citta}: ${d.domanda}`).toBeGreaterThanOrEqual(margine)
+        }
+      }
+    }
+  })
+})

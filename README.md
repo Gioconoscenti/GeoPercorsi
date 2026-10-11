@@ -44,14 +44,17 @@ Altri comandi:
 - **Regioni d’Europa del libro di 2ª** (iberica, atlantica, britannica, germanica, nordica, balcanica, centro-orientale, Russia)
   e **aree geografiche del mondo del libro di 3ª** (Africa settentrionale/centrale/meridionale, Medio Oriente, Subcontinente indiano,
   Sudest asiatico ed Estremo Oriente, America anglosassone e latina), con zoom e schede degli Stati studiati.
-- **Percorsi d’esempio come i capitoli dei libri**: 7 per la 1ª, 9 per la 2ª, 6 per la 3ª (creati al primo avvio).
+- **44 percorsi d’esempio** creati al primo avvio: 22 come i capitoli dei libri (7 per la 1ª, 9 per la 2ª, 6 per la 3ª), 3 approfondimenti
+  (terremoti e vulcani, clima e biomi con climogrammi, Unione europea) e 19 serie di **carte mute** (Italia per regione, Europa per Stato, mondo per area).
+  Chi ha già l’app li riceve una sola volta, in fondo all’elenco.
 - **Percorsi** fatti di **tappe** (16:9) con: testi, immagini, video (file o YouTube), audio, PDF sfogliabili,
   punti informativi, pulsanti (anche per percorsi a bivi), mappe con colori e contenuti agganciati alle aree.
 - **Attività**: quiz, vero/falso, abbinamenti, completa il testo, metti in ordine, flashcard,
-  **trova sulla mappa**, **etichette sulla mappa**, **clicca le coordinate**.
+  **trova sulla mappa**, **etichette sulla mappa** (carte mute), **clicca le coordinate** e **leggi il grafico**
+  (istogramma, barre, torta, climogramma o tabella con domande, come nelle prove INVALSI).
 - **✨ Genera dalla mappa**: crea in un clic quiz su capitali e capoluoghi di provincia, bandiere, record (più alto/lungo/grande),
   “che cos’è?”, “dove si trova?”, “chi confina con chi?”, coordinate, punti cardinali, distanze, fusi orari,
-  giochi di localizzazione ed etichette. Con “Solo in” si generano
+  giochi di localizzazione ed etichette, grafici (altezze, lunghezze, superfici, abitanti) e carte mute. Con “Solo in” si generano
   giochi su una singola regione o un singolo Stato (es. “Trova le province della Lombardia”, “Le regioni della Francia”).
 - **Presenta** (LIM): schermo intero, frecce/telecomando, timer.
 - **Alunno**: nome, punteggio, riepilogo finale stampabile. Su telefono le tappe si impilano in verticale.

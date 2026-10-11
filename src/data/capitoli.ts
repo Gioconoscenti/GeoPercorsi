@@ -3,18 +3,20 @@
 import { genera, type OpzioniGeneratore, type TipoGeneratore } from '../attivita/generatori'
 import { conFocus, livelliPredefiniti } from '../geo/aree'
 import { caricaGeo } from '../geo/useGeo'
-import { CLASSI, type Area, type Attivita, type Classe, type MappaConfig, type Percorso, type Tappa, type TipoMappa } from '../types'
+import { CLASSI, type Area, type Attivita, type Classe, type FormaGrafico, type MappaConfig, type Percorso, type Tappa, type TipoMappa } from '../types'
 import { M, attivita, copertina, mappa, percorso, tappa, testo, titolo } from './esempi'
 
-type Passo =
+export type Passo =
   /** carta con un testo di spiegazione a sinistra (se manca, si usa la descrizione dell'area su cui si fa lo zoom) */
   | { carta: string; mappa: MappaConfig; testo?: string }
-  /** attività generata dai dati delle carte */
-  | { gen: TipoGeneratore; area: Area; tipo: TipoMappa; livello: string; quanti?: number; focus?: string; titolo?: string }
+  /** una pagina di sola spiegazione */
+  | { lezione: string; testo: string }
+  /** attività generata dai dati delle carte (nomi: solo quegli elementi; livelli e forma: per carta muta e grafico) */
+  | { gen: TipoGeneratore; area: Area; tipo: TipoMappa; livello: string; quanti?: number; focus?: string; titolo?: string; nomi?: string[]; livelli?: string[]; forma?: FormaGrafico }
   /** attività scritta a mano */
   | { att: Attivita }
 
-interface Capitolo {
+export interface Capitolo {
   classe: Classe
   titolo: string
   sottotitolo: string
@@ -22,7 +24,7 @@ interface Capitolo {
 }
 
 /** Carta con zoom su una regione/uno Stato/un'area e i livelli giusti */
-const Z = (area: Area, tipo: TipoMappa, focus?: string, livelli?: string[]): MappaConfig => {
+export const Z = (area: Area, tipo: TipoMappa, focus?: string, livelli?: string[]): MappaConfig => {
   const base = M(area, tipo, livelli ? { livelli } : {})
   return focus ? conFocus(base, focus) : base
 }
@@ -230,11 +232,13 @@ export const CAPITOLI: Capitolo[] = [...PRIMA, ...SECONDA, ...TERZA]
 /** Titoli dei vecchi esempi (sostituiti dai capitoli se non sono mai stati modificati) */
 export const TITOLI_ESEMPI_V1 = ['Le regioni d’Italia', 'Monti, fiumi e laghi d’Italia', 'Gli Stati e le capitali d’Europa', 'Rilievi e fiumi d’Europa', 'I continenti', 'Climi e ambienti del mondo']
 
-async function costruisci(c: Capitolo): Promise<Percorso> {
+export async function costruisciCapitolo(c: Capitolo): Promise<Percorso> {
   const colore = CLASSI[c.classe].colore
   const tappe: Tappa[] = [copertina(c.classe, c.titolo, c.sottotitolo)]
   for (const p of c.passi) {
-    if ('carta' in p) {
+    if ('lezione' in p) {
+      tappe.push(tappa(p.lezione, '#ffffff', [titolo(p.lezione, colore), testo(p.testo, 60, 120, 1160, 560, { size: 28 })]))
+    } else if ('carta' in p) {
       // il testo, se manca, è la descrizione dell'area su cui si fa lo zoom
       let spiegazione = p.testo
       if (!spiegazione && p.mappa.focus) {
@@ -243,20 +247,21 @@ async function costruisci(c: Capitolo): Promise<Percorso> {
         spiegazione = [f?.properties.desc, f?.properties.i_Stati ? `Stati: ${f.properties.i_Stati}.` : '', 'Clicca sulla carta per leggere le schede.'].filter(Boolean).join('\n\n')
       }
       const nomeFocus = p.mappa.focus ? (await caricaGeo(p.mappa.area, 'politica')).byId.get(p.mappa.focus)?.properties.nome : undefined
-      tappe.push(tappa(p.carta, '#ffffff', [
+      tappe.push(tappa(nomeFocus ? `${p.carta}: ${nomeFocus}` : p.carta, '#ffffff', [
         titolo(nomeFocus ? `${p.carta}: ${nomeFocus}` : p.carta, colore),
         testo(spiegazione ?? '', 40, 120, 360, 560, { size: 22 }),
         mappa(p.mappa, 420, 110, 820, 590),
       ]))
     } else if ('gen' in p) {
       try {
-        const o: OpzioniGeneratore = { area: p.area, tipo: p.tipo, livello: p.livello, quanti: p.quanti ?? 8, focus: p.focus }
+        const o: OpzioniGeneratore = { area: p.area, tipo: p.tipo, livello: p.livello, quanti: p.quanti ?? p.nomi?.length ?? 8, focus: p.focus, nomi: p.nomi, livelli: p.livelli, forma: p.forma }
         const a = await genera(p.gen, o)
         if (p.titolo) a.titolo = p.titolo + (a.titolo.includes(' – ') ? ' – ' + a.titolo.split(' – ')[1] : '')
-        const grande = a.tipo === 'trova' || a.tipo === 'etichette' || a.tipo === 'coordinate'
+        const grande = a.tipo === 'trova' || a.tipo === 'etichette' || a.tipo === 'coordinate' || a.tipo === 'grafico'
         tappe.push(tappa(a.titolo, grande ? '#ffffff' : CLASSI[c.classe].chiaro, [attivita(a, grande)]))
       } catch (e) {
-        console.warn('Attività non creata:', c.titolo, p.gen, e)
+        // una carta muta con troppo pochi luoghi (uno Stato minuscolo) semplicemente non si crea
+        if (p.gen !== 'carta-muta') console.warn('Attività non creata:', c.titolo, p.gen, e)
       }
     } else {
       tappe.push(tappa(p.att.titolo, CLASSI[c.classe].chiaro, [attivita(p.att)]))
@@ -267,7 +272,7 @@ async function costruisci(c: Capitolo): Promise<Percorso> {
 
 export async function percorsiCapitoli(): Promise<Percorso[]> {
   const out: Percorso[] = []
-  for (const c of CAPITOLI) out.push(await costruisci(c))
+  for (const c of CAPITOLI) out.push(await costruisciCapitolo(c))
   // la home ordina per data di modifica (più recente in alto): il primo capitolo deve risultare il più recente
   const t0 = Date.now()
   out.forEach((p, i) => { p.creato = p.aggiornato = t0 - i * 1000 })

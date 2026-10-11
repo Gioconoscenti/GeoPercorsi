@@ -105,7 +105,8 @@ export function mescolaDiverso<T>(arr: T[]): T[] {
 /** Punteggio massimo di un'attività (serve per contare anche quelle non svolte) */
 export function puntiMassimi(a: import('../types').Attivita): number {
   switch (a.tipo) {
-    case 'quiz': return a.domande.length
+    case 'quiz':
+    case 'grafico': return a.domande.length
     case 'vf': return a.affermazioni.length
     case 'abbina': return a.coppie.length
     case 'completa': return analizzaCompleta(a.testo).filter((p) => p.tipo === 'buco').length

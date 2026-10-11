@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { EditorApi } from './Editor'
-import type { Attivita, DomandaQuiz, Elemento, PuntoCoordinate, TipoAttivita } from '../types'
+import type { Attivita, DatiGrafico, DomandaQuiz, Elemento, FormaGrafico, PuntoCoordinate, TipoAttivita } from '../types'
 import { useGeo } from '../geo/useGeo'
 import { pool } from '../attivita/generatori'
 import { mescola } from '../attivita/correzione'
@@ -58,28 +58,13 @@ export function EditorAttivita({ api, e }: { api: EditorApi; e: El }) {
       </Campo>
       <Campo label="Titolo"><input className="campo" value={a.titolo} onChange={(x) => set({ ...a, titolo: x.target.value })} /></Campo>
 
-      {a.tipo === 'quiz' && (
-        <Lista voci={a.domande} onChange={(domande) => set({ ...a, domande })} etichettaNuova="＋ Domanda"
-          nuova={(): DomandaQuiz => ({ domanda: 'Nuova domanda', opzioni: ['Risposta giusta', 'Risposta sbagliata'], corrette: [0] })}
-          render={(d, setD, i) => (
-            <>
-              <div className="text-xs font-bold text-slate-500 mb-1">Domanda {i + 1}</div>
-              <textarea className="campo mb-1" rows={2} value={d.domanda} onChange={(x) => setD({ ...d, domanda: x.target.value })} />
-              <div className="text-xs text-slate-500 mb-1">Spunta le risposte giuste:</div>
-              {d.opzioni.map((o, k) => (
-                <div key={k} className="flex items-center gap-1 mb-1">
-                  <input type="checkbox" checked={d.corrette.includes(k)} title="Risposta giusta"
-                    onChange={() => setD({ ...d, corrette: d.corrette.includes(k) ? d.corrette.filter((c) => c !== k) : [...d.corrette, k] })} />
-                  <input className="campo py-1" value={o} onChange={(x) => setD({ ...d, opzioni: d.opzioni.map((y, j) => (j === k ? x.target.value : y)) })} />
-                  <button className="text-slate-400 hover:text-rose-600 px-1" disabled={d.opzioni.length <= 2}
-                    onClick={() => setD({ ...d, opzioni: d.opzioni.filter((_, j) => j !== k), corrette: d.corrette.filter((c) => c !== k).map((c) => (c > k ? c - 1 : c)) })}>✕</button>
-                </div>
-              ))}
-              {d.opzioni.length < 6 && <button className="text-xs text-indigo-700 font-semibold" onClick={() => setD({ ...d, opzioni: [...d.opzioni, 'Nuova risposta'] })}>＋ risposta</button>}
-              {d.corrette.length === 0 && <div className="text-xs text-rose-600">Spunta almeno una risposta giusta</div>}
-              <div className="mt-1"><CaricaAsset assetId={d.assetId} accept="image/*" etichetta="Immagine" onChange={(id) => setD({ ...d, assetId: id })} /></div>
-            </>
-          )} />
+      {a.tipo === 'quiz' && <DomandeQuiz domande={a.domande} onChange={(domande) => set({ ...a, domande })} />}
+      {a.tipo === 'grafico' && (
+        <>
+          <EditorGrafico a={a} set={set} />
+          <div className="text-xs font-bold text-slate-500 mt-3 mb-1">Domande sul grafico</div>
+          <DomandeQuiz domande={a.domande} onChange={(domande) => set({ ...a, domande })} />
+        </>
       )}
 
       {a.tipo === 'vf' && (
@@ -191,6 +176,112 @@ function EditorCoordinate({ a, set }: { a: Extract<Attivita, { tipo: 'coordinate
           </div>
         )} />
       <button className="btn-secondario w-full justify-center mt-2" onClick={aggiungiCitta} disabled={!data}>🎲 Aggiungi 5 città a caso</button>
+    </>
+  )
+}
+
+/** Le domande a scelta multipla (quiz e grafico) */
+function DomandeQuiz({ domande, onChange }: { domande: DomandaQuiz[]; onChange: (d: DomandaQuiz[]) => void }) {
+  return (
+        <Lista voci={domande} onChange={onChange} etichettaNuova="＋ Domanda"
+          nuova={(): DomandaQuiz => ({ domanda: 'Nuova domanda', opzioni: ['Risposta giusta', 'Risposta sbagliata'], corrette: [0] })}
+          render={(d, setD, i) => (
+            <>
+              <div className="text-xs font-bold text-slate-500 mb-1">Domanda {i + 1}</div>
+              <textarea className="campo mb-1" rows={2} value={d.domanda} onChange={(x) => setD({ ...d, domanda: x.target.value })} />
+              <div className="text-xs text-slate-500 mb-1">Spunta le risposte giuste:</div>
+              {d.opzioni.map((o, k) => (
+                <div key={k} className="flex items-center gap-1 mb-1">
+                  <input type="checkbox" checked={d.corrette.includes(k)} title="Risposta giusta"
+                    onChange={() => setD({ ...d, corrette: d.corrette.includes(k) ? d.corrette.filter((c) => c !== k) : [...d.corrette, k] })} />
+                  <input className="campo py-1" value={o} onChange={(x) => setD({ ...d, opzioni: d.opzioni.map((y, j) => (j === k ? x.target.value : y)) })} />
+                  <button className="text-slate-400 hover:text-rose-600 px-1" disabled={d.opzioni.length <= 2}
+                    onClick={() => setD({ ...d, opzioni: d.opzioni.filter((_, j) => j !== k), corrette: d.corrette.filter((c) => c !== k).map((c) => (c > k ? c - 1 : c)) })}>✕</button>
+                </div>
+              ))}
+              {d.opzioni.length < 6 && <button className="text-xs text-indigo-700 font-semibold" onClick={() => setD({ ...d, opzioni: [...d.opzioni, 'Nuova risposta'] })}>＋ risposta</button>}
+              {d.corrette.length === 0 && <div className="text-xs text-rose-600">Spunta almeno una risposta giusta</div>}
+              <div className="mt-1"><CaricaAsset assetId={d.assetId} accept="image/*" etichetta="Immagine" onChange={(id) => setD({ ...d, assetId: id })} /></div>
+            </>
+          )} />
+  )
+}
+
+const FORME: Record<FormaGrafico, string> = {
+  istogramma: '📊 Istogramma (barre in verticale)',
+  barre: '📶 Barre in orizzontale',
+  torta: '🥧 Grafico a torta',
+  climogramma: '🌦️ Climogramma (piogge e temperature)',
+  tabella: '🔢 Tabella',
+}
+const MESI = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic']
+
+/** Numero che si conferma uscendo dalla casella (così si possono scrivere anche i valori negativi) */
+function Numero({ v, onChange, titolo }: { v: number; onChange: (n: number) => void; titolo?: string }) {
+  return (
+    <input key={v} type="number" step="any" className="campo py-1 px-1.5 min-w-0" defaultValue={v} aria-label={titolo} title={titolo}
+      onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+      onBlur={(e) => { const n = e.currentTarget.valueAsNumber; if (!Number.isNaN(n) && n !== v) onChange(n) }} />
+  )
+}
+
+function EditorGrafico({ a, set }: { a: Extract<Attivita, { tipo: 'grafico' }>; set: (att: Attivita) => void }) {
+  const g = a.grafico
+  const agg = (patch: Partial<DatiGrafico>) => set({ ...a, grafico: { ...g, ...patch } })
+
+  const cambiaForma = (forma: FormaGrafico) => {
+    const colonne = forma === 'climogramma'
+      ? [{ nome: 'Precipitazioni', unita: 'mm' }, { nome: 'Temperatura', unita: '°C' }]
+      : forma === 'tabella' ? g.colonne : g.colonne.slice(0, 1)
+    const righe = g.righe.map((x) => ({ ...x, valori: colonne.map((_, i) => x.valori[i] ?? 0) }))
+    agg({ forma, colonne, righe })
+  }
+  const aggiungiColonna = () => agg({ colonne: [...g.colonne, { nome: 'Colonna', unita: '' }], righe: g.righe.map((x) => ({ ...x, valori: [...x.valori, 0] })) })
+  const togliColonna = (k: number) => agg({ colonne: g.colonne.filter((_, i) => i !== k), righe: g.righe.map((x) => ({ ...x, valori: x.valori.filter((_, i) => i !== k) })) })
+
+  return (
+    <>
+      <Campo label="Forma">
+        <select className="campo" value={g.forma} onChange={(x) => cambiaForma(x.target.value as FormaGrafico)}>
+          {(Object.keys(FORME) as FormaGrafico[]).map((k) => <option key={k} value={k}>{FORME[k]}</option>)}
+        </select>
+      </Campo>
+      <Campo label="Didascalia sopra il grafico"><input className="campo" value={g.titolo ?? ''} onChange={(x) => agg({ titolo: x.target.value })} /></Campo>
+
+      <div className="text-xs font-bold text-slate-500 mt-2 mb-1">{g.forma === 'tabella' ? 'Colonne' : 'Che cosa si misura'}</div>
+      <div className="flex flex-col gap-1">
+        {g.colonne.map((c, k) => (
+          <div key={k} className="flex items-center gap-1">
+            <input className="campo py-1" placeholder="Nome" value={c.nome} disabled={g.forma === 'climogramma'}
+              onChange={(x) => agg({ colonne: g.colonne.map((y, j) => (j === k ? { ...y, nome: x.target.value } : y)) })} />
+            <input className="campo py-1 w-24" placeholder="Unità" value={c.unita} disabled={g.forma === 'climogramma'}
+              onChange={(x) => agg({ colonne: g.colonne.map((y, j) => (j === k ? { ...y, unita: x.target.value } : y)) })} />
+            {g.forma === 'tabella' && <button className="text-slate-400 hover:text-rose-600 px-1" disabled={g.colonne.length <= 1} onClick={() => togliColonna(k)} title="Togli la colonna">✕</button>}
+          </div>
+        ))}
+        {g.forma === 'tabella' && g.colonne.length < 5 && <button className="text-xs text-indigo-700 font-semibold text-left" onClick={aggiungiColonna}>＋ colonna</button>}
+      </div>
+      {g.forma === 'climogramma' && <p className="text-xs text-slate-500 mt-1">Prima colonna: precipitazioni in mm (barre). Seconda: temperature in °C (linea). Le righe sono i mesi.</p>}
+
+      <div className="text-xs font-bold text-slate-500 mt-3 mb-1">Dati</div>
+      {g.forma === 'climogramma' && g.righe.length !== 12 && (
+        <button className="btn-secondario w-full justify-center mb-2" onClick={() => agg({ righe: MESI.map((m, i) => g.righe[i] ?? { etichetta: m, valori: [0, 0] }).map((x, i) => ({ ...x, etichetta: MESI[i] })) })}>📅 Usa i 12 mesi</button>
+      )}
+      <Lista voci={g.righe} onChange={(righe) => agg({ righe })} etichettaNuova="＋ Riga"
+        nuova={() => ({ etichetta: 'Nuova voce', valori: g.colonne.map(() => 0) })}
+        render={(riga, setR) => (
+          <div className="pr-10">
+            <input className="campo py-1 mb-1" placeholder="Nome" value={riga.etichetta} onChange={(x) => setR({ ...riga, etichetta: x.target.value })} />
+            <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.max(1, g.colonne.length)}, minmax(0, 1fr))` }}>
+              {g.colonne.map((c, k) => (
+                <label key={k} className="text-[11px] text-slate-500 min-w-0">
+                  <span className="block truncate">{c.nome}{c.unita ? ` (${c.unita})` : ''}</span>
+                  <Numero v={riga.valori[k] ?? 0} titolo={`${riga.etichetta} · ${c.nome}`} onChange={(n) => setR({ ...riga, valori: g.colonne.map((_, i) => (i === k ? n : riga.valori[i] ?? 0)) })} />
+                </label>
+              ))}
+            </div>
+          </div>
+        )} />
     </>
   )
 }

@@ -49,7 +49,7 @@ export function BarraStrumenti({ api }: { api: EditorApi }) {
     }
   }
   const attivita = (tipo: TipoAttivita) => {
-    const grande = tipo === 'trova' || tipo === 'etichette' || tipo === 'coordinate'
+    const grande = tipo === 'trova' || tipo === 'etichette' || tipo === 'coordinate' || tipo === 'grafico'
     const w = grande ? 1180 : 860
     const h = grande ? 620 : 560
     api.aggiungiElemento(nuovoElemento('attivita', { attivita: nuovaAttivita(tipo, area), w, h, x: (STAGE_W - w) / 2, y: (STAGE_H - h) / 2 + 30 } as never, area))

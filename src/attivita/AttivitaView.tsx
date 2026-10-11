@@ -3,6 +3,7 @@ import type { Risultato } from './correzione'
 import { Quiz } from './Quiz'
 import { Abbina, Completa, Flashcard, Ordina, VeroFalso } from './Semplici'
 import { Coordinate, Etichette, Trova } from './GiochiMappa'
+import { Grafico } from './Grafico'
 
 export function AttivitaView({ att, onRisultato, statico }: { att: Attivita; onRisultato?: (r: Risultato) => void; statico?: boolean }) {
   const p = { onRisultato, statico }
@@ -16,6 +17,7 @@ export function AttivitaView({ att, onRisultato, statico }: { att: Attivita; onR
     case 'trova': return <Trova att={att} {...p} />
     case 'etichette': return <Etichette att={att} {...p} />
     case 'coordinate': return <Coordinate att={att} {...p} />
+    case 'grafico': return <Grafico att={att} {...p} />
   }
 }
 

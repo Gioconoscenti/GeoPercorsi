@@ -47,7 +47,7 @@ export function Generatore({ api, onClose }: { api: EditorApi; onClose: () => vo
   }
 
   const inserisci = (att: Attivita) => {
-      const grande = att.tipo === 'trova' || att.tipo === 'etichette' || att.tipo === 'coordinate'
+      const grande = att.tipo === 'trova' || att.tipo === 'etichette' || att.tipo === 'coordinate' || att.tipo === 'grafico'
       const w = grande ? 1240 : 900
       const h = grande ? 680 : 600
       const el = nuovoElemento('attivita', { attivita: att, w, h, x: (STAGE_W - w) / 2, y: (STAGE_H - h) / 2 } as never, area)
@@ -139,7 +139,8 @@ export function Generatore({ api, onClose }: { api: EditorApi; onClose: () => vo
 /** Le voci dell'attività generata, in forma leggibile (per l'anteprima) */
 function voci(a: Attivita, nome: (id: string) => string): string[] {
   switch (a.tipo) {
-    case 'quiz': return a.domande.map((d) => `${d.domanda} → ${d.corrette.map((k) => d.opzioni[k]).join(', ')}`)
+    case 'quiz':
+    case 'grafico': return a.domande.map((d) => `${d.domanda} → ${d.corrette.map((k) => d.opzioni[k]).join(', ')}`)
     case 'vf': return a.affermazioni.map((x) => `${x.testo} (${x.vera ? 'vera' : 'falsa'})`)
     case 'abbina': return a.coppie.map((c) => `${c.a} ↔ ${c.b}`)
     case 'flashcard': return a.carte.map((c) => `${c.fronte} → ${c.retro}`)
@@ -154,7 +155,8 @@ function voci(a: Attivita, nome: (id: string) => string): string[] {
 function togli(a: Attivita, k: number): Attivita {
   const via = <T,>(l: T[]) => l.filter((_, j) => j !== k)
   switch (a.tipo) {
-    case 'quiz': return { ...a, domande: via(a.domande) }
+    case 'quiz':
+    case 'grafico': return { ...a, domande: via(a.domande) }
     case 'vf': return { ...a, affermazioni: via(a.affermazioni) }
     case 'abbina': return { ...a, coppie: via(a.coppie) }
     case 'flashcard': return { ...a, carte: via(a.carte) }

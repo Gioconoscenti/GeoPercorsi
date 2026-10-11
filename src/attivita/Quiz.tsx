@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import type { Attivita } from '../types'
+import { useState, type ReactNode } from 'react'
+import type { Attivita, TipoAttivita } from '../types'
 import { BottoneRiprova, Cornice, Punteggio, type PropsAttivita } from './comuni'
 import { correggiQuiz, domandaGiusta, type Risultato } from './correzione'
 import { getRuntime, useAssetUrl } from '../lib/runtime'
 
 type Quiz = Extract<Attivita, { tipo: 'quiz' }>
 
-export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
+/** sopra: un elemento da guardare mentre si risponde (es. il grafico); tipoCornice: icona e nome mostrati in alto */
+export function Quiz({ att, onRisultato, statico, sopra, tipoCornice = 'quiz' }: PropsAttivita<Quiz> & { sopra?: ReactNode; tipoCornice?: TipoAttivita }) {
   const [i, setI] = useState(0)
   const [risposte, setRisposte] = useState<number[][]>([])
   const [verificata, setVerificata] = useState(false)
@@ -16,7 +17,7 @@ export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
   const multipla = (d?.corrette.length ?? 0) > 1
   const img = useAssetUrl(d?.assetId)
 
-  if (!d) return <Cornice tipo="quiz" titolo={att.titolo}><p className="text-slate-500">Nessuna domanda.</p></Cornice>
+  if (!d) return <Cornice tipo={tipoCornice} titolo={att.titolo}><p className="text-slate-500">Nessuna domanda.</p></Cornice>
 
   const scegli = (k: number) => {
     if (verificata || statico) return
@@ -37,7 +38,7 @@ export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
 
   if (fine) {
     return (
-      <Cornice tipo="quiz" titolo={att.titolo} risultato={fine} piede={<BottoneRiprova onClick={ricomincia} />}>
+      <Cornice tipo={tipoCornice} titolo={att.titolo} risultato={fine} piede={<BottoneRiprova onClick={ricomincia} />}>
         <div className="h-full grid place-items-center text-center">
           <div>
             <div className="text-6xl mb-2">{fine.punti === fine.max ? '🏆' : '🎯'}</div>
@@ -52,7 +53,7 @@ export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
   const giusta = domandaGiusta(d.corrette, scelte)
   return (
     <Cornice
-      tipo="quiz"
+      tipo={tipoCornice}
       titolo={att.titolo}
       sottotitolo={`Domanda ${i + 1} di ${att.domande.length}${multipla ? ' · più risposte giuste' : ''}`}
       piede={
@@ -70,6 +71,9 @@ export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
         </>
       }
     >
+      <div className={sopra ? 'flex flex-col lg:flex-row gap-4 lg:items-start' : ''}>
+      {sopra && <div className="lg:w-[48%] shrink-0">{sopra}</div>}
+      <div className="flex-1 min-w-0">
       <div className="flex gap-4 items-start">
         {(img || d.bandiera) && (
           <img src={img ?? getRuntime().flagUrl(d.bandiera!)} alt="" className={'rounded-lg shadow max-h-40 max-w-[40%] object-contain ' + (d.bandiera ? 'border border-slate-200' : '')} />
@@ -99,6 +103,8 @@ export function Quiz({ att, onRisultato, statico }: PropsAttivita<Quiz>) {
           {giusta ? 'Esatto! 🎉' : 'Non proprio… guarda la risposta giusta in verde.'}
         </div>
       )}
+      </div>
+      </div>
     </Cornice>
   )
 }

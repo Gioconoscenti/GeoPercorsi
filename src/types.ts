@@ -36,6 +36,16 @@ export interface PuntoCoordinate {
   lat: number
   nome?: string
 }
+/** Dati di un grafico o di una tabella (la forma dice come si disegnano) */
+export type FormaGrafico = 'istogramma' | 'barre' | 'torta' | 'climogramma' | 'tabella'
+export interface DatiGrafico {
+  forma: FormaGrafico
+  /** didascalia sopra il grafico (facoltativa) */
+  titolo?: string
+  /** una colonna per ogni serie di valori; nel climogramma la prima sono le precipitazioni e la seconda le temperature */
+  colonne: { nome: string; unita: string }[]
+  righe: { etichetta: string; valori: number[] }[]
+}
 export type Attivita =
   | { tipo: 'quiz'; titolo: string; domande: DomandaQuiz[] }
   | { tipo: 'vf'; titolo: string; affermazioni: { testo: string; vera: boolean }[] }
@@ -46,6 +56,7 @@ export type Attivita =
   | { tipo: 'flashcard'; titolo: string; carte: { fronte: string; retro: string; assetId?: string }[] }
   | { tipo: 'ordina'; titolo: string; consegna: string; elementi: string[] }
   | { tipo: 'coordinate'; titolo: string; mappa: MappaConfig; punti: PuntoCoordinate[]; tolleranza: number }
+  | { tipo: 'grafico'; titolo: string; grafico: DatiGrafico; domande: DomandaQuiz[] }
 
 export type TipoAttivita = Attivita['tipo']
 

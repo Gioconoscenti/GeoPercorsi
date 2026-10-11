@@ -108,7 +108,13 @@
     <li>L’elenco dei percorsi, ognuno con i pulsanti <b>✏️ Modifica</b>, <b>📺 Presenta</b> (LIM) e <b>🎒 Alunno</b> (prova come la vedrà un alunno).</li>
     <li>Il pulsante <b>⋯</b> di ogni percorso: scarica il file per gli alunni, esporta il pacchetto, <b>Duplica</b>, <b>Elimina</b>.</li>
   </ul>
-  <p>In alto a destra, <b>⬆ Importa percorso</b> carica un pacchetto <code>.geopercorso</code> ricevuto da un collega o salvato come copia.</p>
+  <p>In alto a destra:</p>
+  <ul>
+    <li><b>📘 Guida</b> apre questo manuale.</li>
+    <li><b>💾 Backup</b> scarica una copia di <b>tutti</b> i tuoi percorsi in un unico file <code>.zip</code>.</li>
+    <li><b>⬆ Importa</b> carica un pacchetto <code>.geopercorso</code> ricevuto da un collega oppure un backup.</li>
+  </ul>
+  <p>Se hai modificato dei percorsi e non fai un backup da più di una settimana, l’app te lo ricorda con un avviso.</p>
 </section>
 
 <section id="atlante">
@@ -146,8 +152,8 @@
   <p>Un percorso è una sequenza di <b>tappe</b>, come le diapositive di una presentazione (formato 16:9).</p>
   <h3>Le parti dell’editor</h3>
   <ul>
-    <li><b>In alto</b>: titolo del percorso (clicca per cambiarlo), classe, <b>↶ ↷</b> annulla/ripeti, <b>⬇ Esporta</b>, <b>🎒 Prova come alunno</b>, <b>📺 Presenta</b>. Il salvataggio è automatico (“✓ Salvato”).</li>
-    <li><b>Barra degli strumenti</b>: per inserire testi, media, mappe e attività.</li>
+    <li><b>In alto</b>: il titolo del percorso, <b>⚙️ Impostazioni</b> (titolo, classe e descrizione), <b>↶ ↷</b> annulla/ripeti, <b>📤 Condividi</b>, <b>🎒 Prova come alunno</b>, <b>📺 Presenta</b>. Il salvataggio è automatico (“✓ Salvato”).</li>
+    <li><b>Barra degli strumenti</b>: per inserire testi, media, interazioni, mappe e attività.</li>
     <li><b>A sinistra</b>: le tappe. <b>＋ Nuova tappa</b>, trascinale per riordinarle, <b>📄 Duplica</b>, <b>🗑️ Elimina</b>.</li>
     <li><b>Al centro</b>: la tappa. Trascina gli elementi per spostarli, usa le maniglie per ridimensionarli.</li>
     <li><b>A destra</b>: le proprietà dell’elemento selezionato. Senza nulla selezionato, le proprietà della tappa (titolo, colore o immagine di sfondo) e del percorso (descrizione mostrata agli alunni all’inizio).</li>
@@ -166,13 +172,8 @@
   <table>
     <tr><th>Pulsante</th><th>Uso</th></tr>
     <tr><td>🔤 Testo</td><td>Titoli e spiegazioni: dimensione, colore e riquadro dal pannello a destra.</td></tr>
-    <tr><td>🖼️ Immagine</td><td>Foto, schemi, pagine del libro scansionate.</td></tr>
-    <tr><td>🎬 Video</td><td>Incolla un link <b>YouTube</b> oppure carica un file video.</td></tr>
-    <tr><td>🎧 Audio</td><td>Un file audio (letture, musiche, suoni).</td></tr>
-    <tr><td>📄 PDF</td><td>Un PDF sfogliabile pagina per pagina.</td></tr>
-    <tr><td>📎 Carica file</td><td>Qualsiasi dei precedenti. Puoi anche <b>trascinare i file direttamente sulla tappa</b>.</td></tr>
-    <tr><td>ℹ️ Punto info</td><td>Un’icona che, cliccata, apre un riquadro con testo e immagine. Mettila sopra un’immagine o una carta per creare “immagini interattive” come in Genially.</td></tr>
-    <tr><td>🔘 Pulsante</td><td>Porta a un’altra tappa (o a un sito). Serve per percorsi a bivi: “Vuoi esplorare le Alpi o gli Appennini?”.</td></tr>
+    <tr><td>🖼️ Media ▾</td><td>Un menu con: <b>Immagine</b> (foto, schemi, pagine del libro scansionate), <b>Video YouTube</b> (incolla il link nel pannello a destra), <b>Video da file</b>, <b>Audio</b> (letture, musiche, suoni) e <b>PDF</b> sfogliabile pagina per pagina. Puoi anche <b>trascinare i file direttamente sulla tappa</b>.</td></tr>
+    <tr><td>👆 Interazioni ▾</td><td>Un menu con: <b>Punto informativo</b>, un’icona che cliccata apre un riquadro con testo e immagine (mettila sopra un’immagine o una carta per fare “immagini interattive” come in Genially), e <b>Pulsante</b>, che porta a un’altra tappa o a un sito: serve per i percorsi a bivi (“Vuoi esplorare le Alpi o gli Appennini?”).</td></tr>
   </table>
   <div class="nota">💡 I file caricati restano dentro il percorso: non serve che restino nella cartella originale.</div>
 </section>
@@ -205,9 +206,11 @@
     <tr><td>🃏 Flashcard</td><td>Carte da girare per ripassare (non danno punti).</td></tr>
     <tr><td>📍 Trova sulla mappa</td><td>L’alunno clicca il luogo richiesto. Scegli i luoghi cliccandoli sulla carta, oppure <b>🎲 +5 a caso</b> o <b>Tutti</b>.</td></tr>
     <tr><td>🏷️ Etichette sulla mappa</td><td>L’alunno trascina i nomi sui luoghi giusti.</td></tr>
+    <tr><td>📊 Leggi il grafico</td><td>Un grafico o una tabella con domande a scelta multipla, come nelle prove INVALSI. Dal pannello a destra scegli la <b>forma</b> (istogramma, barre in orizzontale, torta, <b>climogramma</b> con piogge e temperature mese per mese, tabella), scrivi il nome e l’unità di ciò che misuri, i <b>dati</b> (una riga per ogni barra o mese) e le <b>domande</b>. Il valore si conferma uscendo dalla casella. Con <b>✨ Genera dalla mappa</b> il grafico nasce da solo.</td></tr>
     <tr><td>🌐 Clicca le coordinate</td><td>Compaiono latitudine e longitudine: l’alunno clicca il punto e scopre a quanti km è arrivato. Imposti la distanza accettata; <b>🎲 Aggiungi 5 città</b> prepara i punti.</td></tr>
   </table>
   <p>Nelle attività sulla carta i nomi sono nascosti, così non si può “copiare”.</p>
+  <div class="nota">💡 <b>Carta muta:</b> è l’attività <b>🏷️ Etichette sulla mappa</b>. L’alunno tocca un nome dell’elenco e poi il posto giusto sulla carta senza scritte. Con ✨ Genera dalla mappa trovi “Carta muta”, che mescola capoluoghi, fiumi, laghi e vette della zona che scegli.</div>
 </section>
 
 <section id="genera">
@@ -219,8 +222,9 @@
     <li><b>Su cosa</b>: regioni, Stati, fiumi, vette, laghi…;</li>
     <li><b>Tipo di gioco</b> e <b>quante</b> domande, poi <b>Crea</b>.</li>
   </ol>
-  <p>Giochi disponibili: trova sulla mappa, etichette, quiz capitali/capoluoghi, abbina le capitali, quiz bandiere, quiz dei record (il più alto, lungo, grande), metti in ordine, che cos’è?, dove si trova?, chi confina con chi?, quiz sulle coordinate, clicca le coordinate, punti cardinali, distanze, fusi orari, flashcard di ripasso.</p>
-  <div class="nota">💡 Ogni volta che premi “Crea” le domande cambiano. Le domande create si possono sempre correggere dal pannello a destra.</div>
+  <p>Giochi disponibili: trova sulla mappa, etichette, quiz capitali/capoluoghi, abbina le capitali, quiz bandiere, quiz dei record (il più alto, lungo, grande), metti in ordine, che cos’è?, dove si trova?, chi confina con chi?, quiz sulle coordinate, clicca le coordinate, punti cardinali, distanze, fusi orari, flashcard di ripasso, <b>leggi il grafico</b> (altezze delle vette, lunghezze dei fiumi, superfici, abitanti) e <b>carta muta</b> (compare quando scegli “Solo in” una regione o uno Stato).</p>
+  <p>Prima di inserire l’attività si apre un’<b>anteprima</b>: puoi cambiare il titolo, togliere le voci che non ti piacciono, rigenerare oppure inserire.</p>
+  <div class="nota">💡 Ogni volta che rigeneri le domande cambiano. Le domande create si possono sempre correggere dal pannello a destra.</div>
 </section>
 
 <section id="presenta">
@@ -228,7 +232,8 @@
   <p>Premi <b>📺 Presenta</b>. Il percorso occupa tutto lo schermo e si adatta alla LIM.</p>
   <ul>
     <li>Cambia tappa con <b>◀ ▶</b>, con le frecce <span class="tasto">←</span> <span class="tasto">→</span>, con <span class="tasto">PagSu</span> <span class="tasto">PagGiù</span> o con il telecomando da presentazione.</li>
-    <li><b>⛶</b> attiva lo schermo intero.</li>
+    <li><b>⛶ Schermo intero</b>: all’apertura l’app lo propone.</li>
+    <li><b>✏️ Penna</b>: per scrivere o disegnare sopra la tappa mentre spieghi. Cambiando tappa il disegno sparisce.</li>
     <li><b>Timer</b>: un conto alla rovescia per le attività in classe; lampeggia quando il tempo è scaduto.</li>
     <li>Le attività si possono svolgere insieme, chiamando gli alunni alla lavagna.</li>
   </ul>
@@ -247,14 +252,14 @@
 
 <section id="condividi">
   <h2>12. Condividere e salvare</h2>
-  <p>Dall’editor (<b>⬇ Esporta</b>) o dal pulsante <b>⋯</b> nella pagina iniziale:</p>
+  <p>Dall’editor (<b>📤 Condividi</b>) o dal pulsante <b>⋯</b> nella pagina iniziale:</p>
   <table>
     <tr><th>Cosa</th><th>Per chi</th><th>Come si usa</th></tr>
     <tr><td><b>🎒 File per gli alunni</b> (.html)</td><td>Alunni</td><td>Un unico file che contiene tutto. Caricalo su Classroom, registro elettronico o mail: gli alunni lo scaricano e lo aprono con un doppio clic, anche offline e da telefono. Non si può modificare.</td></tr>
-    <tr><td><b>💾 Pacchetto</b> (.geopercorso)</td><td>Colleghi, copia di sicurezza</td><td>Si riapre con <b>⬆ Importa percorso</b> e resta modificabile.</td></tr>
+    <tr><td><b>💾 Pacchetto</b> (.geopercorso)</td><td>Colleghi, copia di sicurezza</td><td>Si riapre con <b>⬆ Importa</b> e resta modificabile.</td></tr>
   </table>
   <div class="attenz">
-    ⚠️ <b>I percorsi sono salvati nel browser</b> del computer su cui li crei. Se cambi computer o browser, o se cancelli i dati di navigazione, non li ritrovi: <b>esporta regolarmente i pacchetti</b> come copia di sicurezza.
+    ⚠️ <b>I percorsi sono salvati nel browser</b> del computer su cui li crei. Se cambi computer o browser, o se cancelli i dati di navigazione, non li ritrovi: fai regolarmente un <b>💾 Backup</b> dalla pagina iniziale (un unico file con tutti i percorsi).
   </div>
   <ul>
     <li>Da Google Drive il file per gli alunni va <b>scaricato</b>: l’anteprima di Drive non lo fa funzionare.</li>
@@ -265,13 +270,27 @@
 
 <section id="esempi">
   <h2>13. I percorsi d’esempio</h2>
-  <p>Al primo avvio GeoPercorsi crea 22 percorsi pronti, ordinati come i capitoli dei libri di testo:</p>
+  <p>Al primo avvio GeoPercorsi crea 44 percorsi pronti. Sono normali percorsi: puoi modificarli, duplicarli come base per i tuoi o eliminarli.</p>
+  <h3>I capitoli dei libri (22)</h3>
   <ul>
     <li><b>1ª media</b> (7): gli strumenti del geografo, il pianeta Terra e il clima, i rilievi, le pianure, l’acqua sulla terra, le città, uno sguardo sull’Italia;</li>
     <li><b>2ª media</b> (9): l’Europa e le otto regioni d’Europa;</li>
     <li><b>3ª media</b> (6): alla scoperta della Terra, i continenti con le aree geografiche e gli Stati studiati, l’Oceania, i Poli.</li>
   </ul>
-  <p>Sono normali percorsi: puoi modificarli, duplicarli come base per i tuoi o eliminarli.</p>
+  <h3>Approfondimenti (3, in 1ª media)</h3>
+  <ul>
+    <li><b>I terremoti e i vulcani</b>: ipocentro ed epicentro, magnitudo e intensità, un grafico sui grandi terremoti italiani, i vulcani d’Italia, come comportarsi;</li>
+    <li><b>Il clima e i biomi</b>: elementi e fattori del clima, cinque climogrammi (Milano, Roma, Palermo, Londra, Mosca), i biomi d’Europa;</li>
+    <li><b>L’Unione europea</b>: gli Stati colorati per anno di ingresso, le istituzioni, i simboli, un grafico sugli Stati più popolosi. Se la studi in 2ª media, spostala dalle <b>⚙️ Impostazioni</b> del percorso.</li>
+  </ul>
+  <h3>Carte mute (19)</h3>
+  <ul>
+    <li><b>Italia</b>: una carta muta dell’intera Italia e quattro percorsi (Nord-Ovest, Nord-Est, Centro, Sud e isole) con una carta politica e una fisica per ogni regione;</li>
+    <li><b>Europa</b>: l’intera Europa e un percorso per ognuna delle otto regioni, con una carta politica e una fisica per ogni Stato;</li>
+    <li><b>Mondo</b>: l’intero planisfero e quattro percorsi (Africa, Asia, America, Oceania) per aree geografiche.</li>
+  </ul>
+  <div class="nota">💡 Se una zona ha troppo pochi luoghi (per esempio una regione con un solo capoluogo) la carta muta di quel tipo non viene creata. Chi usava già GeoPercorsi trova i percorsi nuovi in fondo all’elenco, senza perdere nulla.</div>
+  <div class="attenz">⚠️ I valori dei climogrammi e le magnitudo dei terremoti sono medie arrotondate a uso didattico: se servono come dati precisi, controllali su una fonte.</div>
 </section>
 
 <section id="problemi">
@@ -288,6 +307,10 @@
   <p>Contiene tutte le immagini, i video e le carte usati. Riduci la dimensione dei video o usa link YouTube.</p>
   <h3>Un dato sulla carta non coincide con il libro.</h3>
   <p>Le misure sono arrotondate a uso scolastico e le fonti a volte differiscono. Puoi aggiungere la versione del libro con <b>📝 Contenuti</b> sulla mappa.</p>
+  <h3>Come faccio il grafico con i miei dati?</h3>
+  <p>Inserisci <b>🎯 Attività → Leggi il grafico</b>, scegli la forma e scrivi i dati nel pannello a destra. Se vuoi un climogramma scegli “Climogramma”: le righe sono i mesi (c’è il pulsante <b>📅 Usa i 12 mesi</b>), la prima colonna sono le piogge in mm e la seconda le temperature in °C.</p>
+  <h3>Come faccio la carta muta della mia regione?</h3>
+  <p>Apri <b>✨ Genera dalla mappa</b>, scegli la carta (politica o fisica), poi “Solo in” la regione o lo Stato e infine il gioco “Carta muta”. Oppure usa i percorsi “Carte mute” già pronti.</p>
 </section>
 </main>
 

@@ -37,6 +37,12 @@ export function nuovaAttivita(tipo: TipoAttivita, area: Area): Attivita {
       return { tipo, titolo: 'Flashcard', carte: [{ fronte: 'Domanda', retro: 'Risposta' }] }
     case 'coordinate':
       return { tipo, titolo: 'Clicca le coordinate', mappa: { ...nuovaMappa(area), etichette: true, livelli: undefined }, punti: [], tolleranza: TOLLERANZA[area] }
+    case 'grafico':
+      return { tipo, titolo: 'Leggi il grafico', grafico: {
+        forma: 'istogramma', titolo: 'Titolo del grafico',
+        colonne: [{ nome: 'Valore', unita: '' }],
+        righe: [{ etichetta: 'A', valori: [4] }, { etichetta: 'B', valori: [7] }, { etichetta: 'C', valori: [5] }],
+      }, domande: [{ domanda: 'Quale barra è la più alta?', opzioni: ['A', 'B', 'C'], corrette: [1] }] }
     case 'ordina':
       return { tipo, titolo: 'Metti in ordine', consegna: 'Ordina dal più grande al più piccolo', elementi: ['Primo', 'Secondo', 'Terzo'] }
   }
@@ -81,6 +87,7 @@ export const NOMI_ATTIVITA: Record<TipoAttivita, { nome: string; icona: string; 
   flashcard: { nome: 'Flashcard', icona: '🃏', descr: 'Carte da girare per ripassare' },
   ordina: { nome: 'Metti in ordine', icona: '🔢', descr: 'Riordina gli elementi' },
   coordinate: { nome: 'Clicca le coordinate', icona: '🌐', descr: 'Trova il punto da latitudine e longitudine' },
+  grafico: { nome: 'Leggi il grafico', icona: '📊', descr: 'Istogramma, torta, climogramma o tabella con domande' },
 }
 
 /** Clona un percorso cambiando tutti gli id */
