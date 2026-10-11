@@ -12,6 +12,7 @@ import { IconaClasse } from '../ui/IconaClasse'
 import { Menu } from '../editor/Editor'
 import { toast } from '../ui/Toast'
 import { Dialogo } from '../ui/Dialogo'
+import { CreaConClaude } from '../scambio/CreaConClaude'
 
 const GIORNO = 24 * 3600 * 1000
 /** un percorso è stato toccato dal docente (gli esempi appena creati hanno aggiornato ≈ creato) */
@@ -36,6 +37,7 @@ export function Home() {
   const [backupInCorso, setBackupInCorso] = useState(false)
   const [cerca, setCerca] = useState('')
   const cercaRef = useRef<HTMLInputElement>(null)
+  const [creaClaude, setCreaClaude] = useState(false)
 
   useEffect(() => {
     seedSeServe().then(pulisciUnaVolta)
@@ -103,6 +105,7 @@ export function Home() {
           <div className="ml-auto flex flex-wrap gap-2">
             <Link className="btn bg-white/15 hover:bg-white/25 text-white" to="/atlante/italia">🗺️ Atlante</Link>
             <a className="btn bg-white/15 hover:bg-white/25 text-white" href="./manuale.html" target="_blank" rel="noopener">📘 Guida</a>
+            <button className="btn bg-white/15 hover:bg-white/25 text-white" onClick={() => setCreaClaude(true)} title="Fai scrivere un percorso a Claude e importalo qui">✨ Crea con Claude</button>
             <button className="btn bg-white/15 hover:bg-white/25 text-white" onClick={backup} disabled={backupInCorso} title="Scarica una copia di tutti i percorsi">
               💾 {backupInCorso ? 'Backup in corso…' : 'Backup'}
             </button>
@@ -111,6 +114,8 @@ export function Home() {
           </div>
         </div>
       </header>
+
+      {creaClaude && <CreaConClaude onClose={() => setCreaClaude(false)} />}
 
       {mostraBanner && (
         <div className="max-w-7xl mx-auto px-4 mt-4">

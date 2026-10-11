@@ -185,7 +185,7 @@ export function opzioniQuiz(giusta: string, altre: string[], n = 4) {
   return { opzioni, corrette: [opzioni.indexOf(giusta)] }
 }
 
-function mappaGioco(o: OpzioniGeneratore): MappaConfig {
+export function mappaGioco(o: Pick<OpzioniGeneratore, 'area' | 'tipo' | 'livello' | 'focus'>): MappaConfig {
   const livelli = [...new Set([...livelliPredefiniti(o.area, o.tipo), o.livello, ...(o.focus ? livelliFocus(o.area, o.tipo, o.focus) : [])])]
   return { area: o.area, tipo: o.tipo, livelli, etichette: false, colori: {}, ...(o.focus ? { focus: o.focus } : {}) }
 }
