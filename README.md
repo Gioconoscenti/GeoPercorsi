@@ -47,6 +47,7 @@ Altri comandi:
 - **44 percorsi d’esempio** creati al primo avvio: 22 come i capitoli dei libri (7 per la 1ª, 9 per la 2ª, 6 per la 3ª), 3 approfondimenti
   (terremoti e vulcani, clima e biomi con climogrammi, Unione europea) e 19 serie di **carte mute** (Italia per regione, Europa per Stato, mondo per area).
   Chi ha già l’app li riceve una sola volta, in fondo all’elenco.
+- **Ricerca dei percorsi** nella pagina iniziale: titolo, descrizione e titoli delle tappe, senza badare a maiuscole e accenti (tasto / per scrivere subito, Esc per svuotare).
 - **Percorsi** fatti di **tappe** (16:9) con: testi, immagini, video (file o YouTube), audio, PDF sfogliabili,
   punti informativi, pulsanti (anche per percorsi a bivi), mappe con colori e contenuti agganciati alle aree.
 - **Attività**: quiz, vero/falso, abbinamenti, completa il testo, metti in ordine, flashcard,

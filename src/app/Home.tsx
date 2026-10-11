@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { cercaPercorso } from '../lib/ricerca'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, pulisciAsset, salvaPercorso } from '../data/db'
@@ -33,11 +34,25 @@ export function Home() {
   const [evidenzia, setEvidenzia] = useState<string[]>([])
   const [bannerChiuso, setBannerChiuso] = useState(false)
   const [backupInCorso, setBackupInCorso] = useState(false)
+  const [cerca, setCerca] = useState('')
+  const cercaRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     seedSeServe().then(pulisciUnaVolta)
     // chiede al browser di non cancellare i dati da solo quando lo spazio scarseggia
     navigator.storage?.persist?.().catch(() => {})
+  }, [])
+
+  // il tasto / porta subito alla ricerca (se non si sta già scrivendo da qualche parte)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement
+      if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey || t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return
+      e.preventDefault()
+      cercaRef.current?.focus()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
   }, [])
 
   const crea = async (c: Classe) => {
@@ -73,6 +88,7 @@ export function Home() {
 
   // promemoria: ci sono modifiche non salvate in un backup da più di una settimana
   const daSalvare = (percorsi ?? []).filter((p) => modificato(p) && p.aggiornato > (ultimoBackup ?? 0))
+  const trovati = (percorsi ?? []).filter((p) => cercaPercorso(p, cerca).ok).length
   const mostraBanner = !bannerChiuso && ultimoBackup !== null && daSalvare.length > 0 && Date.now() - (ultimoBackup ?? 0) > 7 * GIORNO
 
   return (
@@ -110,10 +126,30 @@ export function Home() {
         </div>
       )}
 
+      <div className="max-w-7xl mx-auto px-4 pt-5">
+        <div className="relative">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden>🔎</span>
+          <input ref={cercaRef} type="text" inputMode="search" enterKeyHint="search" autoComplete="off" className="campo pl-11 pr-11 py-2.5 text-base"
+            placeholder="Cerca un percorso: titolo, argomento, regione, Stato…  (premi / per scrivere qui)" aria-label="Cerca un percorso"
+            value={cerca} onChange={(e) => setCerca(e.target.value)} onKeyDown={(e) => { if (e.key === 'Escape') setCerca('') }} />
+          {cerca && (
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full text-slate-500 hover:bg-slate-100" aria-label="Cancella la ricerca"
+              onClick={() => { setCerca(''); cercaRef.current?.focus() }}>✕</button>
+          )}
+        </div>
+        {cerca.trim() && percorsi && (
+          <p className="text-sm text-slate-600 mt-2" role="status">
+            {trovati === 0 ? 'Nessun percorso trovato: prova con meno parole.' : `${trovati} ${trovati === 1 ? 'percorso trovato' : 'percorsi trovati'} su ${percorsi.length}`}
+          </p>
+        )}
+      </div>
+
       <main className="max-w-7xl mx-auto px-4 py-6 grid gap-6 lg:grid-cols-3">
         {([1, 2, 3] as Classe[]).map((c) => {
           const cl = CLASSI[c]
-          const lista = (percorsi ?? []).filter((p) => p.classe === c)
+          const lista = (percorsi ?? []).filter((p) => p.classe === c).map((p) => ({ p, c: cercaPercorso(p, cerca) })).filter((x) => x.c.ok)
+            // prima chi risponde dal titolo, poi chi solo da una tappa (l'ordine per data resta)
+            .sort((a, b) => Number(!!a.c.tappa) - Number(!!b.c.tappa))
           return (
             <section key={c} className="card overflow-hidden flex flex-col">
               <div className="p-5" style={{ background: cl.chiaro }}>
@@ -130,8 +166,8 @@ export function Home() {
                 </div>
               </div>
               <div className="p-3 flex flex-col gap-2 flex-1">
-                {percorsi && lista.length === 0 && <p className="text-sm text-slate-500 p-3">Nessun percorso. Creane uno nuovo!</p>}
-                {lista.map((p) => <SchedaPercorso key={p.id} p={p} colore={cl.colore} evidenziata={evidenzia.includes(p.id)} />)}
+                {percorsi && lista.length === 0 && <p className="text-sm text-slate-500 p-3">{cerca.trim() ? 'Nessun risultato in questa classe.' : 'Nessun percorso. Creane uno nuovo!'}</p>}
+                {lista.map(({ p, c: corr }) => <SchedaPercorso key={p.id} p={p} colore={cl.colore} evidenziata={evidenzia.includes(p.id)} tappaTrovata={corr.tappa} />)}
               </div>
             </section>
           )
@@ -145,7 +181,7 @@ export function Home() {
   )
 }
 
-function SchedaPercorso({ p, colore, evidenziata }: { p: Percorso; colore: string; evidenziata: boolean }) {
+function SchedaPercorso({ p, colore, evidenziata, tappaTrovata }: { p: Percorso; colore: string; evidenziata: boolean; tappaTrovata?: string }) {
   const [lavoro, setLavoro] = useState(false)
   const [condividi, setCondividi] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -176,6 +212,7 @@ function SchedaPercorso({ p, colore, evidenziata }: { p: Percorso; colore: strin
           <Link to={'/modifica/' + p.id} className="font-bold text-slate-900 hover:underline block truncate">{p.titolo}</Link>
           <div className="text-xs text-slate-500">{p.tappe.length} tappe · modificato il {new Date(p.aggiornato).toLocaleDateString('it-IT')}</div>
           {p.descrizione && <p className="text-sm text-slate-600 mt-1 line-clamp-2">{p.descrizione}</p>}
+          {tappaTrovata && <p className="text-xs text-indigo-700 mt-1">🔎 Tappa: {tappaTrovata}</p>}
         </div>
         <Menu etichetta="⋯" className="btn-ghost px-3 py-2 text-lg leading-none" aria-label="Altre azioni">
           {(chiudi) => (
