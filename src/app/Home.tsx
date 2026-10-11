@@ -110,7 +110,8 @@ export function Home() {
               💾 {backupInCorso ? 'Backup in corso…' : 'Backup'}
             </button>
             <button className="btn bg-white/15 hover:bg-white/25 text-white" onClick={() => fileRef.current?.click()} title="Pacchetti .geopercorso o backup .zip">⬆ Importa</button>
-            <input ref={fileRef} type="file" accept=".geopercorso,.zip" multiple hidden onChange={(e) => { importa(e.target.files); e.target.value = '' }} />
+            {/* niente "accept": iPad e iPhone non conoscono l'estensione .geopercorso e mostrerebbero i file in grigio, non selezionabili; il contenuto si controlla comunque in importaFile */}
+            <input ref={fileRef} type="file" multiple hidden onChange={(e) => { importa(e.target.files); e.target.value = '' }} />
           </div>
         </div>
       </header>
